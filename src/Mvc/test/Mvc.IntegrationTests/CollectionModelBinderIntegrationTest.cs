@@ -1225,6 +1225,33 @@ public class CollectionModelBinderIntegrationTest
             });
     }
 
+
+
+
+    [Fact]
+    public async Task CollectionModelBinder_DoNotCreateCollection_WithIndexQuerystring()
+    {
+        // Arrange
+        var parameterBinder = ModelBindingTestHelper.GetParameterBinder();
+        var parameter = new ParameterDescriptor()
+        {
+            Name = "not_expected_list",
+            ParameterType = typeof(IEnumerable<int>)
+        };
+
+        var testContext = ModelBindingTestHelper.GetTestContext(request =>
+        {
+            request.Method = "GET";
+            request.QueryString = new QueryString("?index=123");
+        });
+
+        // Act
+        var result = await parameterBinder.BindModelAsync(parameter, testContext);
+
+        // Assert
+        Assert.True(result.Model == null);
+    }
+
     private class ClosedGenericCollection : Collection<string>
     {
     }
