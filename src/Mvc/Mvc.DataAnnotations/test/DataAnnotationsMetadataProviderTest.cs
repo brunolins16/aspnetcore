@@ -1588,6 +1588,22 @@ public class DataAnnotationsMetadataProviderTest
     }
 #nullable restore
 
+
+    [Fact]
+    public void IsNullableReferenceType_ReturnsTrue_ForKeyValuePairWithNullableConstraintsv2()
+    {
+        // Arrange
+        var type = typeof(string);
+
+        // Act
+        var result = DataAnnotationsMetadataProvider.IsNullableReferenceType(type, member: null, type.GetCustomAttributes(inherit: true));
+
+        // Assert
+        // While we'd like for result to be 'true', we don't have a very good way of actually calculating it correctly.
+        // This test is primarily here to document the behavior.
+        Assert.False(result);
+    }
+
     [Fact]
     public void IsNonNullable_FindsNullableProperty()
     {

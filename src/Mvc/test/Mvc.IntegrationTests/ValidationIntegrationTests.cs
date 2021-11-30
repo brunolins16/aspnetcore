@@ -347,6 +347,45 @@ public class ValidationIntegrationTests
     }
 
     [Fact]
+    public async Task XXXXX()
+    {
+        // Arrange
+        var parameterBinder = ModelBindingTestHelper.GetParameterBinder();
+        var parameter = new ParameterDescriptor()
+        {
+            Name = "parameter",
+            ParameterType = typeof(string),
+
+        };
+
+        var testContext = ModelBindingTestHelper.GetTestContext(request =>
+        {
+           // request.QueryString = new QueryString("?parameter.Customer.Name=bill");
+        });
+
+        var modelState = testContext.ModelState;
+
+        // Act
+        var modelBindingResult = await parameterBinder.BindModelAsync(parameter, testContext);
+
+        // Assert
+        Assert.True(modelBindingResult.IsModelSet);
+
+        var model = Assert.IsType<Order3>(modelBindingResult.Model);
+        Assert.NotNull(model.Customer);
+        Assert.Equal("bill", model.Customer.Name);
+
+        Assert.Single(modelState);
+        Assert.Equal(0, modelState.ErrorCount);
+        Assert.True(modelState.IsValid);
+
+        var entry = Assert.Single(modelState, e => e.Key == "parameter.Customer.Name").Value;
+        Assert.Equal("bill", entry.AttemptedValue);
+        Assert.Equal("bill", entry.RawValue);
+        Assert.Empty(entry.Errors);
+    }
+
+    [Fact]
     public async Task Validation_RequiredAttribute_OnNestedSimpleTypeProperty_WithData()
     {
         // Arrange

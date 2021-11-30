@@ -421,6 +421,8 @@ public class ActionParameterIntegrationTest
 
     public record ActionParameter_DefaultValueConstructor(string Name = "test", int Age = 23);
 
+
+    #nullable enable
     [Fact]
     public async Task ActionParameter_UsesDefaultConstructorParameters()
     {
@@ -434,7 +436,7 @@ public class ActionParameterIntegrationTest
         };
         var testContext = ModelBindingTestHelper.GetTestContext(request =>
         {
-            request.QueryString = QueryString.Create("Name", "James");
+            //request.QueryString = QueryString.Create("Name", "James");
         });
         var modelState = testContext.ModelState;
 
@@ -445,9 +447,12 @@ public class ActionParameterIntegrationTest
         Assert.True(modelState.IsValid);
 
         var model = Assert.IsType<ActionParameter_DefaultValueConstructor>(result.Model);
-        Assert.Equal("James", model.Name);
+        Assert.Equal("test", model.Name);
         Assert.Equal(23, model.Age);
     }
+    #nullable restore
+
+
 
     [Fact]
     public async Task ActionParameter_UsingComplexTypeModelBinder_ModelPropertyTypeWithNoParameterlessConstructor_ThrowsException()

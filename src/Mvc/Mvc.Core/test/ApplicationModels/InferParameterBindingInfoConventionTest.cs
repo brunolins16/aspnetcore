@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
@@ -48,6 +48,31 @@ Environment.NewLine + "Car b";
 
         var convention = GetConvention();
         var action = GetActionModel(typeof(MultipleFromBodyController), actionName);
+
+        // Act & Assert
+        var ex = Assert.Throws<InvalidOperationException>(() => convention.InferParameterBindingSources(action));
+        Assert.Equal(expected, ex.Message);
+    }
+
+
+    [Fact]
+    public void InferParameterBindingSources_Throws_IfMultipleParametersAreInferredAsBodyBoundXXX()
+    {
+        // Arrange
+        var actionName = nameof(MultipleFromBodyController.SimpleTypeWithDefaultValue);
+        var expected =
+$@"Action '{typeof(MultipleFromBodyController).FullName}.{actionName} ({typeof(MultipleFromBodyController).Assembly.GetName().Name})' " +
+"has more than one parameter that was specified or inferred as bound from request body. Only one parameter per action may be bound from body. Inspect the following parameters, and use 'FromQueryAttribute' to specify bound from query, 'FromRouteAttribute' to specify bound from route, and 'FromBodyAttribute' for parameters to be bound from body:" +
+Environment.NewLine + "TestModel a" +
+Environment.NewLine + "Car b";
+
+        var convention = GetConvention();
+        var action = GetActionModel(typeof(MultipleFromBodyController), actionName);
+
+        // Act
+        convention.Apply(action);
+
+
 
         // Act & Assert
         var ex = Assert.Throws<InvalidOperationException>(() => convention.InferParameterBindingSources(action));
@@ -209,6 +234,23 @@ Environment.NewLine + "int b";
         // Arrange
         var actionName = nameof(ParameterBindingController.OptionalRouteToken);
         var parameter = GetParameterModel(typeof(ParameterBindingController), actionName);
+        var convention = GetConvention();
+
+        // Act
+        var result = convention.InferBindingSourceForParameter(parameter);
+
+        // Assert
+        Assert.Same(BindingSource.Path, result);
+    }
+
+
+
+    [Fact]
+    public void InferBindingSourceForParameter_ReturnsPath_defaultValue()
+    {
+        // Arrange
+        var actionName = nameof(CountriesController.GetByLanguage);
+        var parameter = GetParameterModel(typeof(CountriesController), actionName);
         var convention = GetConvention();
 
         // Act
@@ -779,6 +821,19 @@ Environment.NewLine + "int b";
     }
 
     [ApiController]
+    [Route("api/[controller]")]
+    public class CountriesController : ControllerBase
+    {
+        // GET: api/<controller>
+        [HttpGet]
+        public IEnumerable<string> GetByLanguage(string language = "nl")
+        {
+            Console.WriteLine(language);
+            return new[] { "Nederland", "Duitsland", "Amerika" };
+        }
+    }
+
+    [ApiController]
     [Route("[controller]/[action]")]
     private class ParameterBindingController
     {
@@ -988,6 +1043,8 @@ Environment.NewLine + "int b";
 
     private class MultipleFromBodyController
     {
+        public IActionResult SimpleTypeWithDefaultValue(string a = "test") => null;
+
         public IActionResult MultipleInferred(TestModel a, Car b) => null;
 
         public IActionResult InferredAndSpecified(TestModel a, [FromBody] int b) => null;

@@ -46,6 +46,33 @@ public class TryValidateModelIntegrationTest
         Assert.Equal("Product must be made in the USA if it is not named.", modelStateErrors["software"]);
     }
 
+    public record NonNullableTest(string name = "Bruno");
+
+    #nullable enable
+    [Fact]
+    public void ModelState_IsInvalid_ForInvalidData_OnDerivedModel_record()
+    {
+        // Arrange
+        var testContext = ModelBindingTestHelper.GetTestContext();
+
+        var modelState = testContext.ModelState;
+        var model = new NonNullableTest();
+
+        var controller = CreateController(testContext, testContext.MetadataProvider);
+
+        // Act
+        var result = controller.TryValidateModel(model, prefix: "software");
+
+        // Assert
+        Assert.True(result);
+        Assert.True(modelState.IsValid);
+        //var modelStateErrors = GetModelStateErrors(modelState);
+        //Assert.Single(modelStateErrors);
+        //Assert.Equal("Product must be made in the USA if it is not named.", modelStateErrors["software"]);
+    }
+    #nullable restore
+
+
     [Fact]
     public void ModelState_IsValid_ForValidData_OnDerivedModel()
     {
