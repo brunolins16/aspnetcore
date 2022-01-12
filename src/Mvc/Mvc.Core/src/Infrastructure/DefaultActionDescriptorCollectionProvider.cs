@@ -124,6 +124,8 @@ internal class DefaultActionDescriptorCollectionProvider : ActionDescriptorColle
                 _actionDescriptorProviders[i].OnProvidersExecuted(context);
             }
 
+            //TODO: Log if nothing found
+
             // The sequence for an update is important because we don't want anyone to obtain
             // the new change token but the old action descriptor collection.
             // 1. Obtain the old cancellation token source (don't trigger it yet)
