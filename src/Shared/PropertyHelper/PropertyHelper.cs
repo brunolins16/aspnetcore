@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
+using System.Runtime.Loader;
 
 [assembly: MetadataUpdateHandler(typeof(Microsoft.Extensions.Internal.PropertyHelper))]
 
@@ -512,7 +513,12 @@ internal class PropertyHelper
             }
 
             helpers = properties.Select(p => createPropertyHelper(p)).ToArray();
-            cache.TryAdd(type, helpers);
+
+            // We must add to the cache only if the assembly was loaded in the DefaulContext
+            if (AssemblyLoadContext.GetLoadContext(type.Assembly) == AssemblyLoadContext.Default)
+            {
+                cache.TryAdd(type, helpers);
+            }
         }
 
         return helpers;
