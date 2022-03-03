@@ -8,6 +8,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Result;
+using Microsoft.AspNetCore.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
@@ -147,9 +148,8 @@ public static class Results
     /// <remarks>Callers should cache an instance of serializer settings to avoid
     /// recreating cached data with each call.</remarks>
     public static IResult Json(object? data, JsonSerializerOptions? options = null, string? contentType = null, int? statusCode = null)
-        => new JsonResult
+        => new JsonResult(data)
         {
-            Value = data,
             JsonSerializerOptions = options,
             ContentType = contentType,
             StatusCode = statusCode,
@@ -515,7 +515,7 @@ public static class Results
     /// <param name="value">The value to be included in the HTTP response body.</param>
     /// <returns>The created <see cref="IResult"/> for the response.</returns>
     public static IResult NotFound(object? value = null)
-        => new NotFoundObjectResult(value);
+        => new NotFoundResult(value);
 
     /// <summary>
     /// Produces a <see cref="StatusCodes.Status401Unauthorized"/> response.
@@ -530,7 +530,7 @@ public static class Results
     /// <param name="error">An error object to be included in the HTTP response body.</param>
     /// <returns>The created <see cref="IResult"/> for the response.</returns>
     public static IResult BadRequest(object? error = null)
-        => new BadRequestObjectResult(error);
+        => new BadRequestResult(error);
 
     /// <summary>
     /// Produces a <see cref="StatusCodes.Status409Conflict"/> response.
@@ -553,7 +553,7 @@ public static class Results
     /// <param name="value">The value to be included in the HTTP response body.</param>
     /// <returns>The created <see cref="IResult"/> for the response.</returns>
     public static IResult Ok(object? value = null)
-        => new OkObjectResult(value);
+        => new OkResult(value);
 
     /// <summary>
     /// Produces a <see cref="StatusCodes.Status422UnprocessableEntity"/> response.
@@ -561,7 +561,7 @@ public static class Results
     /// <param name="error">An error object to be included in the HTTP response body.</param>
     /// <returns>The created <see cref="IResult"/> for the response.</returns>
     public static IResult UnprocessableEntity(object? error = null)
-        => new UnprocessableEntityObjectResult(error);
+        => new UnprocessableEntityResult(error);
 
     /// <summary>
     /// Produces a <see cref="ProblemDetails"/> response.
@@ -598,10 +598,7 @@ public static class Results
             }
         }
 
-        return new ObjectResult(problemDetails)
-        {
-            ContentType = "application/problem+json",
-        };
+        return new ProblemResult(problemDetails);
     }
 
     /// <summary>
@@ -611,10 +608,7 @@ public static class Results
     /// <returns>The created <see cref="IResult"/> for the response.</returns>
     public static IResult Problem(ProblemDetails problemDetails)
     {
-        return new ObjectResult(problemDetails)
-        {
-            ContentType = "application/problem+json",
-        };
+        return new ProblemResult(problemDetails);
     }
 
     /// <summary>
@@ -656,10 +650,7 @@ public static class Results
             }
         }
 
-        return new ObjectResult(problemDetails)
-        {
-            ContentType = "application/problem+json",
-        };
+        return new ProblemResult(problemDetails);
     }
 
     /// <summary>

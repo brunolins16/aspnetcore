@@ -1,9 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Results;
 
-internal sealed class CreatedResult : ObjectResult
+using Microsoft.AspNetCore.Http;
+
+public sealed class CreatedResult : JsonResult
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CreatedResult"/> class with the values

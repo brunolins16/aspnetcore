@@ -1,12 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Results;
 
-internal sealed class CreatedAtRouteResult : ObjectResult
+public sealed class CreatedAtRouteResult : JsonResult
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CreatedAtRouteResult"/> class with the values
