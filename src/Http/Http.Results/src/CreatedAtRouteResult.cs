@@ -5,53 +5,53 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.AspNetCore.Results;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-public sealed class AcceptedAtRouteResult : JsonResult
+public sealed class CreatedAtRouteResult : JsonResult
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="AcceptedAtRouteResult"/> class with the values
+    /// Initializes a new instance of the <see cref="CreatedAtRouteResult"/> class with the values
     /// provided.
     /// </summary>
     /// <param name="routeValues">The route data to use for generating the URL.</param>
     /// <param name="value">The value to format in the entity body.</param>
-    public AcceptedAtRouteResult(object? routeValues, object? value)
+    public CreatedAtRouteResult(object? routeValues, object? value)
         : this(routeName: null, routeValues: routeValues, value: value)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AcceptedAtRouteResult"/> class with the values
+    /// Initializes a new instance of the <see cref="CreatedAtRouteResult"/> class with the values
     /// provided.
     /// </summary>
     /// <param name="routeName">The name of the route to use for generating the URL.</param>
     /// <param name="routeValues">The route data to use for generating the URL.</param>
     /// <param name="value">The value to format in the entity body.</param>
-    public AcceptedAtRouteResult(
+    public CreatedAtRouteResult(
         string? routeName,
         object? routeValues,
         object? value)
-        : base(value, StatusCodes.Status202Accepted)
+        : base(value, StatusCodes.Status201Created)
     {
         RouteName = routeName;
-        RouteValues = new RouteValueDictionary(routeValues);
+        RouteValues = routeValues == null ? null : new RouteValueDictionary(routeValues);
     }
 
     /// <summary>
-    /// Gets the name of the route to use for generating the URL.
+    /// Gets or sets the name of the route to use for generating the URL.
     /// </summary>
-    public string? RouteName { get; }
+    public string? RouteName { get; set; }
 
     /// <summary>
-    /// Gets the route data to use for generating the URL.
+    /// Gets or sets the route data to use for generating the URL.
     /// </summary>
-    public RouteValueDictionary RouteValues { get; }
+    public RouteValueDictionary? RouteValues { get; set; }
 
     /// <inheritdoc />
     protected override void ConfigureResponseHeaders(HttpContext context)
     {
         var linkGenerator = context.RequestServices.GetRequiredService<LinkGenerator>();
-        var url = linkGenerator.GetUriByAddress(
+        var url = linkGenerator.GetUriByRouteValues(
             context,
             RouteName,
             RouteValues,

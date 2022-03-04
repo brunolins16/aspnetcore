@@ -2,17 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.AspNetCore.Internal;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
 /// <summary>
 /// Represents an <see cref="FileResultBase"/> that when executed will
 /// write a file from a stream to the response.
 /// </summary>
-internal sealed class FileStreamResult : FileResult, IResult
+public sealed class FileStreamResult : FileResult, IResult
 {
     /// <summary>
     /// Creates a new <see cref="FileStreamResult"/> instance with

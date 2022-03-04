@@ -3,12 +3,13 @@
 
 using System.Text;
 using Microsoft.AspNetCore.Internal;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-internal sealed partial class ContentResult : IResult
+public sealed partial class ContentResult : IResult
 {
     private const string DefaultContentType = "text/plain; charset=utf-8";
     private static readonly Encoding DefaultEncoding = Encoding.UTF8;
@@ -63,11 +64,11 @@ internal sealed partial class ContentResult : IResult
         }
     }
 
-    private static partial class Log
+    public static partial class Log
     {
         [LoggerMessage(1, LogLevel.Information,
             "Executing ContentResult with HTTP Response ContentType of {ContentType}",
             EventName = "ContentResultExecuting")]
-        internal static partial void ContentResultExecuting(ILogger logger, string contentType);
+        public static partial void ContentResultExecuting(ILogger logger, string contentType);
     }
 }

@@ -3,15 +3,16 @@
 
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
 /// <summary>
 /// An <see cref="IResult"/> that on execution invokes <see cref="M:HttpContext.ChallengeAsync"/>.
 /// </summary>
-internal sealed partial class ChallengeResult : IResult
+public sealed partial class ChallengeResult : IResult
 {
     /// <summary>
     /// Initializes a new instance of <see cref="ChallengeResult"/>.
@@ -111,6 +112,6 @@ internal sealed partial class ChallengeResult : IResult
         }
 
         [LoggerMessage(1, LogLevel.Information, "Executing ChallengeResult with authentication schemes ({Schemes}).", EventName = "ChallengeResultExecuting", SkipEnabledCheck = true)]
-        private static partial void ChallengeResultExecuting(ILogger logger, string[] schemes);
+        static partial void ChallengeResultExecuting(ILogger logger, string[] schemes);
     }
 }

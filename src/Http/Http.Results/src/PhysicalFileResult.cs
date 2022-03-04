@@ -1,17 +1,18 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
 /// <summary>
 /// A <see cref="PhysicalFileResult"/> on execution will write a file from disk to the response
 /// using mechanisms provided by the host.
 /// </summary>
-internal sealed partial class PhysicalFileResult : FileResult, IResult
+public sealed partial class PhysicalFileResult : FileResult, IResult
 {
     /// <summary>
     /// Creates a new <see cref="PhysicalFileResult"/> instance with
@@ -31,7 +32,7 @@ internal sealed partial class PhysicalFileResult : FileResult, IResult
     public string FileName { get; }
 
     // For testing
-    public Func<string, FileInfoWrapper> GetFileInfoWrapper { get; init; } =
+    internal Func<string, FileInfoWrapper> GetFileInfoWrapper { get; init; } =
         static path => new FileInfoWrapper(path);
 
     protected override ILogger GetLogger(HttpContext httpContext)

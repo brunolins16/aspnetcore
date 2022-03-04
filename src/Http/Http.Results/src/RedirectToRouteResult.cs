@@ -1,18 +1,17 @@
-// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
 /// <summary>
 /// An <see cref="IResult"/> that returns a Found (302), Moved Permanently (301), Temporary Redirect (307),
 /// or Permanent Redirect (308) response with a Location header.
 /// Targets a registered route.
 /// </summary>
-internal sealed partial class RedirectToRouteResult : IResult
+public sealed class RedirectToRouteResult : RedirectResultBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="RedirectToRouteResult"/> with the values
@@ -116,11 +115,10 @@ internal sealed partial class RedirectToRouteResult : IResult
         bool permanent,
         bool preserveMethod,
         string? fragment)
+        : base(permanent, preserveMethod)
     {
         RouteName = routeName;
         RouteValues = routeValues == null ? null : new RouteValueDictionary(routeValues);
-        PreserveMethod = preserveMethod;
-        Permanent = permanent;
         Fragment = fragment;
     }
 
@@ -135,22 +133,11 @@ internal sealed partial class RedirectToRouteResult : IResult
     public RouteValueDictionary? RouteValues { get; }
 
     /// <summary>
-    /// Gets or sets an indication that the redirect is permanent.
-    /// </summary>
-    public bool Permanent { get; }
-
-    /// <summary>
-    /// Gets or sets an indication that the redirect preserves the initial request method.
-    /// </summary>
-    public bool PreserveMethod { get; }
-
-    /// <summary>
     /// Gets or sets the fragment to add to the URL.
     /// </summary>
     public string? Fragment { get; }
 
-    /// <inheritdoc />
-    public Task ExecuteAsync(HttpContext httpContext)
+    public override string GetLocation(HttpContext httpContext)
     {
         var linkGenerator = httpContext.RequestServices.GetRequiredService<LinkGenerator>();
 
@@ -159,33 +146,12 @@ internal sealed partial class RedirectToRouteResult : IResult
             RouteName,
             RouteValues,
             fragment: Fragment == null ? FragmentString.Empty : new FragmentString("#" + Fragment));
+
         if (string.IsNullOrEmpty(destinationUrl))
         {
             throw new InvalidOperationException("No route matches the supplied values.");
         }
 
-        var logger = httpContext.RequestServices.GetRequiredService<ILogger<RedirectToRouteResult>>();
-        Log.RedirectToRouteResultExecuting(logger, destinationUrl, RouteName);
-
-        if (PreserveMethod)
-        {
-            httpContext.Response.StatusCode = Permanent ?
-                StatusCodes.Status308PermanentRedirect : StatusCodes.Status307TemporaryRedirect;
-            httpContext.Response.Headers.Location = destinationUrl;
-        }
-        else
-        {
-            httpContext.Response.Redirect(destinationUrl, Permanent);
-        }
-
-        return Task.CompletedTask;
-    }
-
-    private static partial class Log
-    {
-        [LoggerMessage(1, LogLevel.Information,
-            "Executing RedirectToRouteResult, redirecting to {Destination} from route {RouteName}.",
-            EventName = "RedirectToRouteResultExecuting")]
-        public static partial void RedirectToRouteResultExecuting(ILogger logger, string destination, string? routeName);
+        return destinationUrl;
     }
 }

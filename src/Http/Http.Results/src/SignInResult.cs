@@ -3,15 +3,16 @@
 
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
 /// <summary>
 /// An <see cref="IResult"/> that on execution invokes <see cref="M:HttpContext.SignInAsync"/>.
 /// </summary>
-internal sealed partial class SignInResult : IResult
+public sealed partial class SignInResult : IResult
 {
     /// <summary>
     /// Initializes a new instance of <see cref="SignInResult"/> with the

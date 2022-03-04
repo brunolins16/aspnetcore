@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.AspNetCore.Results;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
 /// <summary>
 /// An action result which formats the given object as JSON.
@@ -14,7 +14,7 @@ namespace Microsoft.AspNetCore.Results;
 public class JsonResult : ObjectResult
 {
     /// <summary>
-    /// Creates a new <see cref="ObjectResult"/> instance with the provided <paramref name="value"/>.
+    /// Creates a new <see cref="JsonResult"/> instance with the provided <paramref name="value"/>.
     /// </summary>
     public JsonResult(object? value)
     {
@@ -22,7 +22,7 @@ public class JsonResult : ObjectResult
     }
 
     /// <summary>
-    /// Creates a new <see cref="ObjectResult"/> instance with the provided <paramref name="value"/>.
+    /// Creates a new <see cref="JsonResult"/> instance with the provided <paramref name="value"/>.
     /// </summary>
     public JsonResult(object? value, int? statusCode)
     {

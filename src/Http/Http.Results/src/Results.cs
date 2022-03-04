@@ -7,8 +7,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http.Result;
-using Microsoft.AspNetCore.Results;
+using Microsoft.AspNetCore.Http.Endpoints.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 

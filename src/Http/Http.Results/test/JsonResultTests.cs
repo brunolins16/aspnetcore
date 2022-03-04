@@ -4,19 +4,20 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-public class ObjectResultTests
+public class JsonResultTests
 {
     [Fact]
     public async Task ObjectResult_ExecuteAsync_WithNullValue_Works()
     {
         // Arrange
-        var result = new ObjectResult(value: null, 411);
+        var result = new JsonResult(value: null, 411);
 
         var httpContext = new DefaultHttpContext()
         {
@@ -34,7 +35,7 @@ public class ObjectResultTests
     public async Task ObjectResult_ExecuteAsync_SetsStatusCode()
     {
         // Arrange
-        var result = new ObjectResult("Hello", 407);
+        var result = new JsonResult("Hello", 407);
 
         var httpContext = new DefaultHttpContext()
         {
@@ -52,7 +53,7 @@ public class ObjectResultTests
     public async Task ObjectResult_ExecuteAsync_JsonSerializesBody()
     {
         // Arrange
-        var result = new ObjectResult("Hello", 407);
+        var result = new JsonResult("Hello", 407);
         var stream = new MemoryStream();
         var httpContext = new DefaultHttpContext()
         {
@@ -76,7 +77,7 @@ public class ObjectResultTests
         // Arrange
         var details = new ProblemDetails();
 
-        var result = new ObjectResult(details);
+        var result = new JsonResult(details);
         var stream = new MemoryStream();
         var httpContext = new DefaultHttpContext()
         {
@@ -105,7 +106,7 @@ public class ObjectResultTests
         // Arrange
         var details = new HttpValidationProblemDetails();
 
-        var result = new ObjectResult(details);
+        var result = new JsonResult(details);
         var stream = new MemoryStream();
         var httpContext = new DefaultHttpContext()
         {
@@ -134,7 +135,7 @@ public class ObjectResultTests
         // Arrange
         var details = new HttpValidationProblemDetails();
 
-        var result = new ObjectResult(details, StatusCodes.Status422UnprocessableEntity);
+        var result = new JsonResult(details, StatusCodes.Status422UnprocessableEntity);
         var httpContext = new DefaultHttpContext()
         {
             RequestServices = CreateServices(),
@@ -153,7 +154,7 @@ public class ObjectResultTests
         // Arrange
         var details = new ProblemDetails { Status = StatusCodes.Status413RequestEntityTooLarge, };
 
-        var result = new ObjectResult(details);
+        var result = new JsonResult(details);
 
         var httpContext = new DefaultHttpContext()
         {
@@ -175,7 +176,7 @@ public class ObjectResultTests
         // Arrange
         var details = new ProblemDetails { Status = StatusCodes.Status422UnprocessableEntity, };
 
-        var result = new BadRequestObjectResult(details);
+        var result = new BadRequestResult(details);
 
         var httpContext = new DefaultHttpContext()
         {

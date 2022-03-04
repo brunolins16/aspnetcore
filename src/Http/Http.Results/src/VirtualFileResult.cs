@@ -3,18 +3,19 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
 /// <summary>
 /// A <see cref="FileResultBase" /> that on execution writes the file specified using a virtual path to the response
 /// using mechanisms provided by the host.
 /// </summary>
-internal sealed class VirtualFileResult : FileResult, IResult
+public sealed class VirtualFileResult : FileResult, IResult
 {
     private string _fileName;
     private IFileInfo? _fileInfo;

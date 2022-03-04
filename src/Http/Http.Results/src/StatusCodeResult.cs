@@ -1,12 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-internal partial class StatusCodeResult : IResult
+public partial class StatusCodeResult : IResult
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="StatusCodeResult"/> class
@@ -28,7 +29,7 @@ internal partial class StatusCodeResult : IResult
     /// </summary>
     /// <param name="httpContext">The <see cref="HttpContext"/> for the current request.</param>
     /// <returns>A task that represents the asynchronous execute operation.</returns>
-    public Task ExecuteAsync(HttpContext httpContext)
+    public virtual Task ExecuteAsync(HttpContext httpContext)
     {
         var factory = httpContext.RequestServices.GetRequiredService<ILoggerFactory>();
         var logger = factory.CreateLogger(GetType());

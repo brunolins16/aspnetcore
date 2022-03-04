@@ -1,0 +1,226 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.AcceptedResult" Collapsed="true">
+    <Position X="8.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAIAAIAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NewResults\AcceptedResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.BadRequestResult" Collapsed="true">
+    <Position X="13.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NewResults\BadRequestResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.ChallengeResult" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18.25" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAACAEA=</HashCode>
+      <FileName>NewResults\ChallengeResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.ConflictObjectResult" Collapsed="true">
+    <Position X="17.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NewResults\ConflictObjectResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.ContentResult" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="20" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAAgAAACAAAAAAAAAAAAAAAAAAIAAQAAAAAEA=</HashCode>
+      <FileName>NewResults\ContentResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.CreatedAtRouteResult" Collapsed="true">
+    <Position X="4.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAIAAAAAAACAAAAAAAAABAAAAAAAAA=</HashCode>
+      <FileName>NewResults\CreatedAtRouteResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.CreatedResult" Collapsed="true">
+    <Position X="11" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAIAAIAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NewResults\CreatedResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.FileContentResult" Collapsed="true">
+    <Position X="8.25" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAIAAAAAAAAAAAgAAAAAAAIAAAAAAAA=</HashCode>
+      <FileName>NewResults\FileContentResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.FileResult" Collapsed="true">
+    <Position X="8.25" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAIAAAAAAEA=</HashCode>
+      <FileName>NewResults\FileResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.FileResultBase" Collapsed="true">
+    <Position X="8.25" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAgCAAAAIAAIBAAQAAAgAAA=</HashCode>
+      <FileName>NewResults\FileResultBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.FileStreamResult" Collapsed="true">
+    <Position X="12.75" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAIAIAAAAAAEA=</HashCode>
+      <FileName>NewResults\FileStreamResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.ForbidResult" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="16.5" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAACAEA=</HashCode>
+      <FileName>NewResults\ForbidResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.JsonResult" Collapsed="true">
+    <Position X="13.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAAAAAAAAAAAAgAAQAAAAAAAAAAAAA=</HashCode>
+      <FileName>NewResults\JsonResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.LocalRedirectResult" Collapsed="true">
+    <Position X="6" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA=</HashCode>
+      <FileName>NewResults\LocalRedirectResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.NoContentResult" Collapsed="true">
+    <Position X="11.5" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NewResults\NoContentResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.NotFoundResult" Collapsed="true">
+    <Position X="20" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NewResults\NotFoundResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.ObjectResult" Collapsed="true">
+    <Position X="13.25" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAYAAAAAAAAAAgAAQAAIAAwAAAAAEA=</HashCode>
+      <FileName>NewResults\ObjectResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.OkResult" Collapsed="true">
+    <Position X="6.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NewResults\OkResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.PhysicalFileResult" Collapsed="true">
+    <Position X="6" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAgQAAAAAAIAAABAAEA=</HashCode>
+      <FileName>NewResults\PhysicalFileResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.ProblemResult" Collapsed="true">
+    <Position X="15.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NewResults\ProblemResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.PushStreamResult" Collapsed="true">
+    <Position X="10.5" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAIAAAgAAAAAAAIAAAAAAAA=</HashCode>
+      <FileName>NewResults\PushStreamResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.RedirectResult" Collapsed="true">
+    <Position X="8.25" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA=</HashCode>
+      <FileName>NewResults\RedirectResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.RedirectResultBase" Collapsed="true">
+    <Position X="6" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAAAAAAAAAAAAAAAAAAIAQAAAAAAAAAAAEA=</HashCode>
+      <FileName>NewResults\RedirectResultBase.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.RedirectToRouteResult" Collapsed="true">
+    <Position X="3.75" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAQAAAAAAAAAAAAACAAAAAAAAABAAAAAAAAA=</HashCode>
+      <FileName>NewResults\RedirectToRouteResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.SignInResult" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18.25" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAACAEA=</HashCode>
+      <FileName>NewResults\SignInResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.SignOutResult" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="20" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAACAEA=</HashCode>
+      <FileName>NewResults\SignOutResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.StatusCodeResult" Collapsed="true">
+    <Position X="12.75" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAEA=</HashCode>
+      <FileName>NewResults\StatusCodeResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.UnauthorizedResult" Collapsed="true">
+    <Position X="13.75" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NewResults\UnauthorizedResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.UnprocessableEntityResult" Collapsed="true">
+    <Position X="22.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NewResults\UnprocessableEntityResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.VirtualFileResult" Collapsed="true">
+    <Position X="3.75" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAgAAQAAAAMAAABAAEA=</HashCode>
+      <FileName>NewResults\VirtualFileResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

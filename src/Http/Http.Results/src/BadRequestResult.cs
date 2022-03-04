@@ -5,9 +5,10 @@ namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
 using Microsoft.AspNetCore.Http;
 
-public sealed class UnauthorizedResult : StatusCodeResult
+public sealed class BadRequestResult : JsonResult
 {
-    public UnauthorizedResult() : base(StatusCodes.Status401Unauthorized)
+    public BadRequestResult(object? error)
+        : base(error, StatusCodes.Status400BadRequest)
     {
     }
 }

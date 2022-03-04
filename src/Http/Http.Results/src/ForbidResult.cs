@@ -3,12 +3,13 @@
 
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-internal sealed partial class ForbidResult : IResult
+public sealed partial class ForbidResult : IResult
 {
     /// <summary>
     /// Initializes a new instance of <see cref="ForbidResult"/>.

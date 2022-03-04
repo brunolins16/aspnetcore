@@ -1,11 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
 public class NotFoundObjectResultTest
 {
@@ -13,7 +14,7 @@ public class NotFoundObjectResultTest
     public void NotFoundObjectResult_InitializesStatusCode()
     {
         // Arrange & act
-        var notFound = new NotFoundObjectResult(null);
+        var notFound = new NotFoundResult(null);
 
         // Assert
         Assert.Equal(StatusCodes.Status404NotFound, notFound.StatusCode);
@@ -23,7 +24,7 @@ public class NotFoundObjectResultTest
     public void NotFoundObjectResult_InitializesStatusCodeAndResponseContent()
     {
         // Arrange & act
-        var notFound = new NotFoundObjectResult("Test Content");
+        var notFound = new NotFoundResult("Test Content");
 
         // Assert
         Assert.Equal(StatusCodes.Status404NotFound, notFound.StatusCode);
@@ -35,7 +36,7 @@ public class NotFoundObjectResultTest
     {
         // Arrange
         var httpContext = GetHttpContext();
-        var result = new NotFoundObjectResult("Test Content");
+        var result = new NotFoundResult("Test Content");
 
         // Act
         await result.ExecuteAsync(httpContext);

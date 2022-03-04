@@ -1,11 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Microsoft.AspNetCore.Http.Result;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
 public class OkObjectResultTest
 {
@@ -13,7 +14,7 @@ public class OkObjectResultTest
     public async Task OkObjectResult_SetsStatusCodeAndValue()
     {
         // Arrange
-        var result = new OkObjectResult("Hello world");
+        var result = new OkResult("Hello world");
         var httpContext = GetHttpContext();
 
         // Act

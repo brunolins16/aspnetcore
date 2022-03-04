@@ -4,7 +4,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.AspNetCore.Results;
+namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
 public abstract partial class ObjectResult : IResult
 {
