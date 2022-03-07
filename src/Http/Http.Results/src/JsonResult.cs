@@ -10,7 +10,7 @@ namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 /// <summary>
 /// An action result which formats the given object as JSON.
 /// </summary>
-public class JsonResult : ObjectResult
+public sealed class JsonResult : ObjectResult
 {
     /// <summary>
     /// Creates a new <see cref="ObjectResult"/> instance with the provided <paramref name="value"/>.

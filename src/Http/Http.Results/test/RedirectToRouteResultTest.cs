@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -101,6 +100,7 @@ public class RedirectToRouteResultTest
         services.AddSingleton<LinkGenerator>(new TestLinkGenerator { Url = path });
 
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+        services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
         return services;
     }
 }

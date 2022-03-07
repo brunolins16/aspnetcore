@@ -12,6 +12,9 @@ public abstract partial class RedirectResultBase : StatusCodeResult
     {
         Permanent = permanent;
         PreserveMethod = preserveMethod;
+        StatusCode = Permanent
+            ? StatusCodes.Status308PermanentRedirect
+            : StatusCodes.Status307TemporaryRedirect;
     }
 
     /// <summary>
@@ -23,10 +26,6 @@ public abstract partial class RedirectResultBase : StatusCodeResult
     /// Gets or sets an indication that the redirect preserves the initial request method.
     /// </summary>
     public bool PreserveMethod { get; }
-
-    public new int StatusCode => Permanent
-        ? StatusCodes.Status308PermanentRedirect
-        : StatusCodes.Status307TemporaryRedirect;
 
     /// <inheritdoc />
     public async Task ExecuteAsync(HttpContext httpContext)

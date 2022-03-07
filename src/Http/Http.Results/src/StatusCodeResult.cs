@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -36,7 +35,7 @@ public partial class StatusCodeResult : IResult
     public virtual Task ExecuteAsync(HttpContext httpContext)
     {
         var factory = httpContext.RequestServices.GetRequiredService<ILoggerFactory>();
-        var logger = factory.CreateLogger(GetType());       
+        var logger = factory.CreateLogger(GetType());
 
         if (StatusCode is { } statusCode)
         {

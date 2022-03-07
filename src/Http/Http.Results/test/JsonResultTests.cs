@@ -4,7 +4,6 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -195,6 +194,7 @@ public class JsonResultTests
     private static IServiceProvider CreateServices()
     {
         var services = new ServiceCollection();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
 
         return services.BuildServiceProvider();

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -40,6 +42,11 @@ public abstract partial class ObjectResult : StatusCodeResult
         var logger = GetLogger(httpContext);
         Log.ObjectResultExecuting(logger, Value, StatusCode);
 
+        if (Value is ProblemDetails problemDetails)
+        {
+            ApplyProblemDetailsDefaults(problemDetails);
+        }
+
         await base.ExecuteAsync(httpContext);
 
         ConfigureResponseHeaders(httpContext);
@@ -73,7 +80,10 @@ public abstract partial class ObjectResult : StatusCodeResult
     /// <param name="httpContext">The <see cref="HttpContext"/> for the response.</param>
     /// <returns>An instance of <see cref="ILogger"/>.</returns>
     protected virtual ILogger GetLogger(HttpContext httpContext)
-        => httpContext.RequestServices.GetRequiredService<ILogger<ObjectResult>>();
+    {
+        var loggerFactory = httpContext.RequestServices.GetRequiredService<ILoggerFactory>();
+        return loggerFactory.CreateLogger(GetType());
+    }
 
     /// <summary>
     /// Writes the response body content. this operation is only invoked when the <see cref="Value"/> is not null.
@@ -82,6 +92,39 @@ public abstract partial class ObjectResult : StatusCodeResult
     /// <returns>A <see cref="Task"/> that represents the asynchronous write operation.</returns>
     protected virtual Task WriteResponse(HttpContext httpContext)
         => httpContext.Response.WriteAsJsonAsync(Value, Value!.GetType(), options: null, contentType: ContentType);
+
+    private void ApplyProblemDetailsDefaults(ProblemDetails problemDetails)
+    {
+        ContentType = "application/problem+json";
+
+        // We allow StatusCode to be specified either on ProblemDetails or on the ObjectResult and use it to configure the other.
+        // This lets users write <c>return Conflict(new Problem("some description"))</c>
+        // or <c>return Problem("some-problem", 422)</c> and have the response have consistent fields.
+        if (problemDetails.Status is null)
+        {
+            if (StatusCode is not null)
+            {
+                problemDetails.Status = StatusCode;
+            }
+            else
+            {
+                problemDetails.Status = problemDetails is HttpValidationProblemDetails ?
+                    StatusCodes.Status400BadRequest :
+                    StatusCodes.Status500InternalServerError;
+            }
+        }
+
+        if (StatusCode is null)
+        {
+            StatusCode = problemDetails.Status;
+        }
+
+        if (ProblemDetailsDefaults.Defaults.TryGetValue(problemDetails.Status.Value, out var defaults))
+        {
+            problemDetails.Title ??= defaults.Title;
+            problemDetails.Type ??= defaults.Type;
+        }
+    }
 
     private static partial class Log
     {
