@@ -1,65 +1,87 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-public abstract partial class ObjectResult : IResult
+public abstract partial class ObjectResult : StatusCodeResult
 {
+    /// <summary>
+    /// Creates a new <see cref="ObjectResult"/> instance with the provided <paramref name="value"/>.
+    /// </summary>
+    public ObjectResult(object? value)
+    {
+        Value = value;
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="ObjectResult"/> instance with the provided <paramref name="value"/>.
+    /// </summary>
+    public ObjectResult(object? value, int? statusCode)
+    {
+        Value = value;
+        StatusCode = statusCode;
+    }
+
     /// <summary>
     /// The object result.
     /// </summary>
     public object? Value { get; protected set; }
 
     /// <summary>
-    /// Gets the HTTP status code.
-    /// </summary>
-    public int? StatusCode { get; set; }
-
-    /// <summary>
     /// Gets the value for the <c>Content-Type</c> header.
     /// </summary>
     public string? ContentType { get; set; }
 
-    public virtual Task ExecuteAsync(HttpContext httpContext)
+    public override async Task ExecuteAsync(HttpContext httpContext)
     {
         var logger = GetLogger(httpContext);
         Log.ObjectResultExecuting(logger, Value, StatusCode);
 
-        if (StatusCode is { } statusCode)
-        {
-            httpContext.Response.StatusCode = statusCode;
-        }
+        await base.ExecuteAsync(httpContext);
 
         ConfigureResponseHeaders(httpContext);
 
-        if (Value is null)
+        if (Value is not null)
         {
-            return Task.CompletedTask;
+            OnFormatting(httpContext);
+            await WriteResponse(httpContext);
         }
-
-        OnFormatting(httpContext);
-        return WriteResult(httpContext);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="httpContext"></param>
     protected virtual void OnFormatting(HttpContext httpContext)
     {
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="httpContext"></param>
     protected virtual void ConfigureResponseHeaders(HttpContext httpContext)
     {
     }
 
-    protected abstract ILogger GetLogger(HttpContext httpContext);
+    /// <summary>
+    /// Get an instance of the <see cref="ILogger"/>.
+    /// </summary>
+    /// <param name="httpContext">The <see cref="HttpContext"/> for the response.</param>
+    /// <returns>An instance of <see cref="ILogger"/>.</returns>
+    protected virtual ILogger GetLogger(HttpContext httpContext)
+        => httpContext.RequestServices.GetRequiredService<ILogger<ObjectResult>>();
 
     /// <summary>
-    /// Writes the response body content.
+    /// Writes the response body content. this operation is only invoked when the <see cref="Value"/> is not null.
     /// </summary>
     /// <param name="httpContext">The <see cref="HttpContext"/> for the response.</param>
     /// <returns>A <see cref="Task"/> that represents the asynchronous write operation.</returns>
-    protected abstract Task WriteResult(HttpContext httpContext);
+    protected virtual Task WriteResponse(HttpContext httpContext)
+        => httpContext.Response.WriteAsJsonAsync(Value, Value!.GetType(), options: null, contentType: ContentType);
 
     private static partial class Log
     {

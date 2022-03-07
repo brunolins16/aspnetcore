@@ -3,8 +3,6 @@
 
 namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-using Microsoft.AspNetCore.Http;
-
 public class NoContentResult : StatusCodeResult
 {
     public NoContentResult() : base(StatusCodes.Status204NoContent)

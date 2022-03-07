@@ -3,9 +3,7 @@
 
 namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-using Microsoft.AspNetCore.Http;
-
-public sealed class NotFoundResult : JsonResult
+public sealed class NotFoundResult : ObjectResult
 {
     public NotFoundResult(object? value)
         : base(value, StatusCodes.Status404NotFound)

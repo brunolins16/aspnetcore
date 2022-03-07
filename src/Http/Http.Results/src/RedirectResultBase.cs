@@ -1,13 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-public abstract partial class RedirectResultBase : IResult
+public abstract partial class RedirectResultBase : StatusCodeResult
 {
     protected RedirectResultBase(bool permanent, bool preserveMethod)
     {
@@ -25,8 +24,12 @@ public abstract partial class RedirectResultBase : IResult
     /// </summary>
     public bool PreserveMethod { get; }
 
+    public new int StatusCode => Permanent
+        ? StatusCodes.Status308PermanentRedirect
+        : StatusCodes.Status307TemporaryRedirect;
+
     /// <inheritdoc />
-    public Task ExecuteAsync(HttpContext httpContext)
+    public async Task ExecuteAsync(HttpContext httpContext)
     {
         var logger = httpContext.RequestServices.GetRequiredService<ILogger<RedirectResultBase>>();
 
@@ -36,17 +39,13 @@ public abstract partial class RedirectResultBase : IResult
 
         if (PreserveMethod)
         {
-            httpContext.Response.StatusCode = Permanent
-                ? StatusCodes.Status308PermanentRedirect
-                : StatusCodes.Status307TemporaryRedirect;
+            await base.ExecuteAsync(httpContext);
             httpContext.Response.Headers.Location = destinationUrl;
         }
         else
         {
             httpContext.Response.Redirect(destinationUrl, Permanent);
         }
-
-        return Task.CompletedTask;
     }
 
     public abstract string GetLocation(HttpContext httpContext);

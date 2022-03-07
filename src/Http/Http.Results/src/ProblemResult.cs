@@ -3,11 +3,10 @@
 
 namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
-public sealed class ProblemResult : JsonResult
+public sealed class ProblemResult : ObjectResult
 {
     public ProblemResult(ProblemDetails problemDetails)
         : base(problemDetails)

@@ -3,9 +3,7 @@
 
 namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-using Microsoft.AspNetCore.Http;
-
-public sealed class ConflictObjectResult : JsonResult
+public sealed class ConflictObjectResult : ObjectResult
 {
     public ConflictObjectResult(object? error) :
         base(error, StatusCodes.Status409Conflict)

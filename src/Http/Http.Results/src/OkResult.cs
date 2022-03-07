@@ -5,7 +5,7 @@ namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
 using Microsoft.AspNetCore.Http;
 
-public sealed class OkResult : JsonResult
+public sealed class OkResult : ObjectResult
 {
     public OkResult(object? value)
         : base(value, StatusCodes.Status200OK)

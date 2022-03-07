@@ -3,13 +3,12 @@
 
 using System.Text;
 using Microsoft.AspNetCore.Internal;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-public sealed partial class ContentResult : IResult
+public sealed partial class ContentResult : StatusCodeResult
 {
     private const string DefaultContentType = "text/plain; charset=utf-8";
     private static readonly Encoding DefaultEncoding = Encoding.UTF8;
@@ -23,11 +22,6 @@ public sealed partial class ContentResult : IResult
     /// Gets or sets the Content-Type header for the response.
     /// </summary>
     public string? ContentType { get; init; }
-
-    /// <summary>
-    /// Gets or sets the HTTP status code.
-    /// </summary>
-    public int? StatusCode { get; init; }
 
     /// <summary>
     /// Writes the content to the HTTP response.
@@ -48,10 +42,7 @@ public sealed partial class ContentResult : IResult
 
         response.ContentType = resolvedContentType;
 
-        if (StatusCode != null)
-        {
-            response.StatusCode = StatusCode.Value;
-        }
+        await base.ExecuteAsync(httpContext);
 
         var logger = httpContext.RequestServices.GetRequiredService<ILogger<ContentResult>>();
 

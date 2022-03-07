@@ -3,9 +3,7 @@
 
 namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-using Microsoft.AspNetCore.Http;
-
-public sealed class CreatedResult : JsonResult
+public sealed class CreatedResult : ObjectResult
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CreatedResult"/> class with the values

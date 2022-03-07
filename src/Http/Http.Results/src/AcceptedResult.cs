@@ -3,9 +3,7 @@
 
 namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-using Microsoft.AspNetCore.Http;
-
-public sealed class AcceptedResult : JsonResult
+public sealed class AcceptedResult : ObjectResult
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="AcceptedResult"/> class with the values

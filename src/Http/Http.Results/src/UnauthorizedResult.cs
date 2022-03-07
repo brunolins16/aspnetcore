@@ -3,8 +3,6 @@
 
 namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-using Microsoft.AspNetCore.Http;
-
 public sealed class UnauthorizedResult : StatusCodeResult
 {
     public UnauthorizedResult() : base(StatusCodes.Status401Unauthorized)

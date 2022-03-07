@@ -9,6 +9,10 @@ namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
 public partial class StatusCodeResult : IResult
 {
+    internal StatusCodeResult()
+    {
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="StatusCodeResult"/> class
     /// with the given <paramref name="statusCode"/>.
@@ -22,7 +26,7 @@ public partial class StatusCodeResult : IResult
     /// <summary>
     /// Gets the HTTP status code.
     /// </summary>
-    public int StatusCode { get; }
+    public int? StatusCode { get; internal set; }
 
     /// <summary>
     /// Sets the status code on the HTTP response.
@@ -32,11 +36,14 @@ public partial class StatusCodeResult : IResult
     public virtual Task ExecuteAsync(HttpContext httpContext)
     {
         var factory = httpContext.RequestServices.GetRequiredService<ILoggerFactory>();
-        var logger = factory.CreateLogger(GetType());
+        var logger = factory.CreateLogger(GetType());       
 
-        Log.StatusCodeResultExecuting(logger, StatusCode);
-
-        httpContext.Response.StatusCode = StatusCode;
+        if (StatusCode is { } statusCode)
+        {
+            Log.StatusCodeResultExecuting(logger, statusCode);
+            httpContext.Response.StatusCode = statusCode;
+        }
+        
         return Task.CompletedTask;
     }
 

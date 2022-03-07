@@ -3,9 +3,7 @@
 
 namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-using Microsoft.AspNetCore.Http;
-
-public sealed class BadRequestResult : JsonResult
+public sealed class BadRequestResult : ObjectResult
 {
     public BadRequestResult(object? error)
         : base(error, StatusCodes.Status400BadRequest)

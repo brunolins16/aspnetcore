@@ -3,9 +3,7 @@
 
 namespace Microsoft.AspNetCore.Http.Endpoints.Results;
 
-using Microsoft.AspNetCore.Http;
-
-public sealed class UnprocessableEntityResult : JsonResult
+public sealed class UnprocessableEntityResult : ObjectResult
 {
     public UnprocessableEntityResult(object? error)
         : base(error, StatusCodes.Status422UnprocessableEntity)
