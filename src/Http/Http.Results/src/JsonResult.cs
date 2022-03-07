@@ -42,6 +42,6 @@ public sealed class JsonResult : ObjectResult
     protected override ILogger GetLogger(HttpContext httpContext)
         => httpContext.RequestServices.GetRequiredService<ILogger<JsonResult>>();
 
-    protected override Task WriteResponse(HttpContext httpContext)
+    protected override Task WriteResponseAsync(HttpContext httpContext)
         => httpContext.Response.WriteAsJsonAsync(Value, Value!.GetType(), JsonSerializerOptions, ContentType);
 }

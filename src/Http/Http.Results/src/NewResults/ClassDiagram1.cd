@@ -29,8 +29,15 @@
       <FileName>ConflictObjectResult.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.ContentResult" Collapsed="true" BaseTypeListCollapsed="true">
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.ContentResult" BaseTypeListCollapsed="true">
     <Position X="16.75" Y="1.75" Width="1.5" />
+    <NestedTypes>
+      <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.ContentResult.Log" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ContentResult.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
     <TypeIdentifier>
       <HashCode>AAAIAAAAAgAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAEA=</HashCode>
       <FileName>ContentResult.cs</FileName>
@@ -97,7 +104,7 @@
   <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.JsonResult">
     <Position X="2" Y="5.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAEAAAAAAAAAAABAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAEAAAAAAAAEAAAAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>JsonResult.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -108,7 +115,7 @@
       <FileName>LocalRedirectResult.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.NoContentResult" Collapsed="true">
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.NoContentResult">
     <Position X="14.5" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
@@ -132,7 +139,7 @@
       </Class>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAYABAAAAAAAAgAAAAAAAAwAAAAAEA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAEYAAAAAACAAAgAAAAAAAAwAAAAAEA=</HashCode>
       <FileName>ObjectResult.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -153,7 +160,7 @@
   <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.ProblemResult" Collapsed="true">
     <Position X="16.25" Y="5.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>ProblemResult.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -173,8 +180,15 @@
   </Class>
   <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.RedirectResultBase" Collapsed="true">
     <Position X="5" Y="1.75" Width="1.5" />
+    <NestedTypes>
+      <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.RedirectResultBase.Log" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>RedirectResultBase.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAACAAAAAAAAAAAAAAAAAAAIAQAAIAAAAAAAAEA=</HashCode>
+      <HashCode>AAAAAAACAAAAAAAAAAAAAAAAAAAIAQAAAAAAAAAAAEA=</HashCode>
       <FileName>RedirectResultBase.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -209,7 +223,7 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.UnauthorizedResult" Collapsed="true">
+  <Class Name="Microsoft.AspNetCore.Http.Endpoints.Results.UnauthorizedResult">
     <Position X="9.5" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>

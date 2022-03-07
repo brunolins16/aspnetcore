@@ -54,7 +54,7 @@ public abstract partial class ObjectResult : StatusCodeResult
         if (Value is not null)
         {
             OnFormatting(httpContext);
-            await WriteResponse(httpContext);
+            await WriteResponseAsync(httpContext);
         }
     }
 
@@ -90,7 +90,7 @@ public abstract partial class ObjectResult : StatusCodeResult
     /// </summary>
     /// <param name="httpContext">The <see cref="HttpContext"/> for the response.</param>
     /// <returns>A <see cref="Task"/> that represents the asynchronous write operation.</returns>
-    protected virtual Task WriteResponse(HttpContext httpContext)
+    protected virtual Task WriteResponseAsync(HttpContext httpContext)
         => httpContext.Response.WriteAsJsonAsync(Value, Value!.GetType(), options: null, contentType: ContentType);
 
     private void ApplyProblemDetailsDefaults(ProblemDetails problemDetails)
