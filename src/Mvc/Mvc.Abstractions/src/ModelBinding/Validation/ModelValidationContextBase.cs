@@ -53,4 +53,6 @@ public class ModelValidationContextBase
     /// Gets the <see cref="IModelMetadataProvider"/>.
     /// </summary>
     public IModelMetadataProvider MetadataProvider { get; }
+
+    internal bool HasApiValidationBehavior { get; init; }
 }
