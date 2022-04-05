@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Internal;
 
@@ -45,6 +46,14 @@ public class ControllerModel : ICommonModel, IFilterModel, IApiExplorerModel
         Properties = new Dictionary<object, object?>();
         RouteValues = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
         Selectors = new List<SelectorModel>();
+
+        HasApiBehavior = attributes.OfType<IApiBehaviorMetadata>().Any();
+
+        if (!HasApiBehavior)
+        {
+            var assemblyAttributes = controllerType.Assembly.GetCustomAttributes();
+            HasApiBehavior = assemblyAttributes.OfType<IApiBehaviorMetadata>().Any();
+        }
     }
 
     /// <summary>
@@ -60,6 +69,7 @@ public class ControllerModel : ICommonModel, IFilterModel, IApiExplorerModel
 
         ControllerName = other.ControllerName;
         ControllerType = other.ControllerType;
+        HasApiBehavior = other.HasApiBehavior;
 
         // Still part of the same application
         Application = other.Application;
@@ -166,4 +176,10 @@ public class ControllerModel : ICommonModel, IFilterModel, IApiExplorerModel
             return $"{controllerType} ({controllerAssembly})";
         }
     }
+
+    /// <summary>
+    /// Gets a flag that Indicates if the controller is configured to
+    /// have an HTTP API behavior (<see cref="IApiBehaviorMetadata"/>).
+    /// </summary>
+    internal bool HasApiBehavior { get; }
 }

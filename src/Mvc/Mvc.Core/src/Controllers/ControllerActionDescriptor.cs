@@ -39,6 +39,12 @@ public class ControllerActionDescriptor : ActionDescriptor
     // Cache entry so we can avoid an external cache
     internal ControllerActionInvokerCacheEntry? CacheEntry { get; set; }
 
+    /// <summary>
+    /// Gets a flag that Indicates if the controller is configured to
+    /// have an HTTP API behavior (<see cref="IApiBehaviorMetadata"/>).
+    /// </summary>
+    internal bool HasApiBehavior { get; set; }
+
     /// <inheritdoc />
     public override string? DisplayName
     {
@@ -67,4 +73,5 @@ public class ControllerActionDescriptor : ActionDescriptor
             base.DisplayName = value;
         }
     }
+
 }

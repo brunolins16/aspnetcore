@@ -3,10 +3,12 @@
 
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Resources = Microsoft.AspNetCore.Mvc.Core.Resources;
 
@@ -37,6 +39,7 @@ internal static class ControllerActionDescriptorBuilder
 
         actionDescriptor.ControllerName = controller.ControllerName;
         actionDescriptor.ControllerTypeInfo = controller.ControllerType;
+        actionDescriptor.HasApiBehavior = controller.HasApiBehavior;
         AddControllerPropertyDescriptors(actionDescriptor, controller);
 
         AddActionConstraints(actionDescriptor, selector);
