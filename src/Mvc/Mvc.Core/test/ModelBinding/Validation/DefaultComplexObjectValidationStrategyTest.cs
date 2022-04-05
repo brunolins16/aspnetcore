@@ -59,7 +59,7 @@ public class DefaultComplexObjectValidationStrategyTest
         };
 
         var metadata = TestModelMetadataProvider.CreateDefaultProvider(new List<IMetadataDetailsProvider> { new TestValidationModelNameProvider() }).GetMetadataForType(typeof(Person));
-        var strategy = DefaultComplexObjectValidationStrategy.Instance;
+        var strategy = DefaultComplexObjectValidationStrategy.ApiBehaviorInstance;
 
         // Act
         var enumerator = strategy.GetChildren(metadata, "prefix", model);

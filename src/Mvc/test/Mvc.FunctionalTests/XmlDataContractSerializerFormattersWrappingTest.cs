@@ -273,7 +273,7 @@ public class XmlDataContractSerializerFormattersWrappingTest : IClassFixture<Mvc
             Assert.Equal("One or more validation errors occurred.", root.Element(root.Name.Namespace.GetName("title"))?.Value);
             var mvcErrors = root.Element(root.Name.Namespace.GetName("MVC-Errors"));
             Assert.NotNull(mvcErrors);
-            Assert.Equal("The State field is required.", mvcErrors.Element(root.Name.Namespace.GetName("State"))?.Value);
+            Assert.Equal("The state field is required.", mvcErrors.Element(root.Name.Namespace.GetName("state"))?.Value);
             // Activity is not null
             Assert.NotNull(root.Element(root.Name.Namespace.GetName("traceId"))?.Value);
         }

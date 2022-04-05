@@ -271,6 +271,7 @@ public class MvcOptionsSetupTest
                 var excludeFilter = Assert.IsType<SuppressChildValidationMetadataProvider>(provider);
                 Assert.Equal(typeof(XmlNode).FullName, excludeFilter.FullTypeName);
             },
+            provider => Assert.IsType<SystemTextJsonValidationMetadataProvider>(provider),
             provider => Assert.IsType<HasValidatorsValidationMetadataProvider>(provider));
     }
 

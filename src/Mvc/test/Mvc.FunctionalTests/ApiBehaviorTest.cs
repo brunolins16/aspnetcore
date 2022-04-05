@@ -60,15 +60,15 @@ public abstract class ApiBehaviorTestBase<TStartup> : IClassFixture<MvcTestFixtu
                 problemDetails.Errors.OrderBy(kvp => kvp.Key),
                 kvp =>
                 {
-                    Assert.Equal("Name", kvp.Key);
+                    Assert.Equal("name", kvp.Key);
                     var error = Assert.Single(kvp.Value);
-                    Assert.Equal("The field Name must be a string with a minimum length of 5 and a maximum length of 30.", error);
+                    Assert.Equal("The field name must be a string with a minimum length of 5 and a maximum length of 30.", error);
                 },
                 kvp =>
                 {
-                    Assert.Equal("Zip", kvp.Key);
+                    Assert.Equal("zip", kvp.Key);
                     var error = Assert.Single(kvp.Value);
-                    Assert.Equal("The field Zip must match the regular expression '\\d{5}'.", error);
+                    Assert.Equal("The field zip must match the regular expression '\\d{5}'.", error);
                 }
             );
 
@@ -413,8 +413,8 @@ public class ApiBehaviorTestNewtonsoftJson : ApiBehaviorTestBase<BasicWebSite.St
         };
         var expected = new Dictionary<string, string[]>
             {
-                {"Name", new[] {"The field Name must be a string with a minimum length of 5 and a maximum length of 30."}},
-                {"Zip", new[] { @"The field Zip must match the regular expression '\d{5}'."}}
+                {"name", new[] {"The field name must be a string with a minimum length of 5 and a maximum length of 30."}},
+                {"zip", new[] { @"The field zip must match the regular expression '\d{5}'."}}
             };
 
         // Act
