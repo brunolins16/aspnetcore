@@ -604,6 +604,20 @@ public abstract class ModelMetadata : IEquatable<ModelMetadata?>, IModelMetadata
         return DisplayName ?? Name ?? ModelType.Name;
     }
 
+    /// <summary>
+    /// Gets a display name for the model.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="GetValidationModelNameOrDisplayName()"/> will return the first of the following
+    /// expressions which has a non-<see langword="null"/> value:
+    /// <see cref="ValidationModelName"/> or <see cref="GetDisplayName()"/>
+    /// </remarks>
+    /// <returns>The display name.</returns>
+    internal string GetValidationModelNameOrDisplayName()
+    {
+        return ValidationModelName ?? GetDisplayName();
+    }
+
     /// <inheritdoc />
     public bool Equals(ModelMetadata? other)
     {
