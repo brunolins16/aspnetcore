@@ -70,7 +70,7 @@ internal sealed class ApiBehaviorApplicationModelProvider : IApplicationModelPro
     {
         foreach (var controller in context.Result.Controllers)
         {
-            if (!IsApiController(controller))
+            if (!controller.HasApiBehavior)
             {
                 continue;
             }
@@ -112,17 +112,5 @@ internal sealed class ApiBehaviorApplicationModelProvider : IApplicationModelPro
 
             return false;
         }
-    }
-
-    private static bool IsApiController(ControllerModel controller)
-    {
-        if (controller.Attributes.OfType<IApiBehaviorMetadata>().Any())
-        {
-            return true;
-        }
-
-        var controllerAssembly = controller.ControllerType.Assembly;
-        var assemblyAttributes = controllerAssembly.GetCustomAttributes();
-        return assemblyAttributes.OfType<IApiBehaviorMetadata>().Any();
     }
 }
