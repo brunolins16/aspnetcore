@@ -12,15 +12,16 @@ namespace Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 /// An implementation of <see cref="IDisplayMetadataProvider"/> and <see cref="IValidationMetadataProvider"/> for
 /// the Newtonsoft.Json attribute classes.
 /// </summary>
-public sealed class NewtonsoftJsonValidationMetadataProvider : IDisplayMetadataProvider, IValidationMetadataProvider
+public sealed class NewtonsoftJsonValidationMetadataProvider : IValidationMetadataProvider
 {
+    private static readonly NamingStrategy DefaultNamingStrategy = new CamelCaseNamingStrategy();
     private readonly NamingStrategy _jsonNamingPolicy;
 
     /// <summary>
     /// Creates a new <see cref="NewtonsoftJsonValidationMetadataProvider"/> with the default <see cref="CamelCaseNamingStrategy"/>
     /// </summary>
     public NewtonsoftJsonValidationMetadataProvider()
-        : this(new CamelCaseNamingStrategy())
+        : this(DefaultNamingStrategy)
     { }
 
     /// <summary>
@@ -37,19 +38,13 @@ public sealed class NewtonsoftJsonValidationMetadataProvider : IDisplayMetadataP
         _jsonNamingPolicy = namingStrategy;
     }
 
-    /// <inheritdoc />
-    public void CreateDisplayMetadata(DisplayMetadataProviderContext context)
+    internal NewtonsoftJsonValidationMetadataProvider(JsonSerializerSettings jsonSerializerSettings)
     {
-        if (context == null)
-        {
-            throw new ArgumentNullException(nameof(context));
-        }
+        _jsonNamingPolicy = DefaultNamingStrategy;
 
-        var propertyName = ReadPropertyNameFrom(context.Attributes);
-
-        if (!string.IsNullOrEmpty(propertyName))
+        if (jsonSerializerSettings is { ContractResolver: DefaultContractResolver { NamingStrategy: not null } contractResolver })
         {
-            context.DisplayMetadata.DisplayName = () => propertyName;
+            _jsonNamingPolicy = contractResolver.NamingStrategy;
         }
     }
 

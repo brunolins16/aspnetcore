@@ -108,6 +108,8 @@ internal class MvcCoreMvcOptionsSetup : IConfigureOptions<MvcOptions>, IPostConf
 
     public void PostConfigure(string? name, MvcOptions options)
     {
+        options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider(_jsonOptions.Value.JsonSerializerOptions));
+
         // HasValidatorsValidationMetadataProvider uses the results of other ValidationMetadataProvider to determine if a model requires
         // validation. It is imperative that this executes later than all other metadata provider. We'll register it as part of PostConfigure.
         // This should ensure it appears later than all of the details provider registered by MVC and user configured details provider registered

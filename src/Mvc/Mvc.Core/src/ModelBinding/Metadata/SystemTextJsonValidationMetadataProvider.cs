@@ -13,15 +13,16 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 /// An implementation of <see cref="IDisplayMetadataProvider"/> and <see cref="IValidationMetadataProvider"/> for
 /// the System.Text.Json.Serialization attribute classes.
 /// </summary>
-public sealed class SystemTextJsonValidationMetadataProvider : IDisplayMetadataProvider, IValidationMetadataProvider
+public sealed class SystemTextJsonValidationMetadataProvider : IValidationMetadataProvider
 {
+    private static readonly JsonNamingPolicy DefaultNamingPolicy = JsonNamingPolicy.CamelCase;
     private readonly JsonNamingPolicy _jsonNamingPolicy;
 
     /// <summary>
     /// Creates a new <see cref="SystemTextJsonValidationMetadataProvider"/> with the default <see cref="JsonNamingPolicy.CamelCase"/>
     /// </summary>
     public SystemTextJsonValidationMetadataProvider()
-        : this(JsonNamingPolicy.CamelCase)
+        : this(DefaultNamingPolicy)
     { }
 
     /// <summary>
@@ -38,20 +39,9 @@ public sealed class SystemTextJsonValidationMetadataProvider : IDisplayMetadataP
         _jsonNamingPolicy = namingPolicy;
     }
 
-    /// <inheritdoc />
-    public void CreateDisplayMetadata(DisplayMetadataProviderContext context)
+    internal SystemTextJsonValidationMetadataProvider(JsonSerializerOptions jsonSerializerOptions)
     {
-        if (context == null)
-        {
-            throw new ArgumentNullException(nameof(context));
-        }
-
-        var propertyName = ReadPropertyNameFrom(context.Attributes);
-
-        if (!string.IsNullOrEmpty(propertyName))
-        {
-            context.DisplayMetadata.DisplayName = () => propertyName;
-        }
+        _jsonNamingPolicy = jsonSerializerOptions.PropertyNamingPolicy ?? DefaultNamingPolicy;
     }
 
     /// <inheritdoc />
