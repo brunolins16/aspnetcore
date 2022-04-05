@@ -45,9 +45,13 @@ internal class DataTypeAttributeAdapter : AttributeAdapterBase<DataTypeAttribute
             throw new ArgumentNullException(nameof(validationContext));
         }
 
+        var displayName = validationContext.HasApiValidationBehavior ?
+            validationContext.ModelMetadata.GetValidationModelNameOrDisplayName() :
+            validationContext.ModelMetadata.GetDisplayName();
+
         return GetErrorMessage(
             validationContext.ModelMetadata,
-            validationContext.ModelMetadata.GetDisplayName(),
+            displayName,
             Attribute.GetDataTypeName());
     }
 }

@@ -38,9 +38,13 @@ internal class MinLengthAttributeAdapter : AttributeAdapterBase<MinLengthAttribu
             throw new ArgumentNullException(nameof(validationContext));
         }
 
+        var displayName = validationContext.HasApiValidationBehavior ?
+            validationContext.ModelMetadata.GetValidationModelNameOrDisplayName() :
+            validationContext.ModelMetadata.GetDisplayName();
+
         return GetErrorMessage(
             validationContext.ModelMetadata,
-            validationContext.ModelMetadata.GetDisplayName(),
+            displayName,
             Attribute.Length);
     }
 }

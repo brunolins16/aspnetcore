@@ -39,7 +39,9 @@ internal class CompareAttributeAdapter : AttributeAdapterBase<CompareAttribute>
             throw new ArgumentNullException(nameof(validationContext));
         }
 
-        var displayName = validationContext.ModelMetadata.GetDisplayName();
+        var displayName = validationContext.HasApiValidationBehavior ?
+            validationContext.ModelMetadata.GetValidationModelNameOrDisplayName() :
+            validationContext.ModelMetadata.GetDisplayName();
         var otherPropertyDisplayName = CompareAttributeWrapper.GetOtherPropertyDisplayName(
             validationContext,
             Attribute);
@@ -74,7 +76,9 @@ internal class CompareAttributeAdapter : AttributeAdapterBase<CompareAttribute>
 
         public override string FormatErrorMessage(string name)
         {
-            var displayName = ValidationContext.ModelMetadata.GetDisplayName();
+            var displayName = ValidationContext.HasApiValidationBehavior ?
+                ValidationContext.ModelMetadata.GetValidationModelNameOrDisplayName() :
+                ValidationContext.ModelMetadata.GetDisplayName(); ;
             return string.Format(CultureInfo.CurrentCulture,
                                  ErrorMessageString,
                                  displayName,

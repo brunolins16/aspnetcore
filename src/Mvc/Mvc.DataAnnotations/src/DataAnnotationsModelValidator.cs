@@ -80,13 +80,16 @@ internal class DataAnnotationsModelValidator : IModelValidator
         var metadata = validationContext.ModelMetadata;
         var memberName = metadata.Name;
         var container = validationContext.Container;
+        var displayName = validationContext.HasApiValidationBehavior ?
+            metadata.GetValidationModelNameOrDisplayName() :
+            metadata.GetDisplayName();
 
         var context = new ValidationContext(
             instance: container ?? validationContext.Model ?? _emptyValidationContextInstance,
             serviceProvider: validationContext.ActionContext?.HttpContext?.RequestServices,
             items: null)
         {
-            DisplayName = metadata.GetDisplayName(),
+            DisplayName = displayName,
             MemberName = memberName
         };
 
