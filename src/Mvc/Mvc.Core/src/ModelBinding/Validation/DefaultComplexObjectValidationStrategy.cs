@@ -13,13 +13,21 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 /// </summary>
 internal class DefaultComplexObjectValidationStrategy : IValidationStrategy
 {
+    private readonly bool _shouldUseValidationModelName;
+
     /// <summary>
     /// Gets an instance of <see cref="DefaultComplexObjectValidationStrategy"/>.
     /// </summary>
-    public static readonly IValidationStrategy Instance = new DefaultComplexObjectValidationStrategy();
+    public static readonly IValidationStrategy Instance = new DefaultComplexObjectValidationStrategy(false);
 
-    private DefaultComplexObjectValidationStrategy()
+    /// <summary>
+    /// Gets an instance of <see cref="DefaultComplexObjectValidationStrategy"/> that will use the <see cref="ModelMetadata.ValidationModelName"/> if it exists.
+    /// </summary>
+    public static readonly IValidationStrategy ApiBehaviorInstance = new DefaultComplexObjectValidationStrategy(true);
+
+    private DefaultComplexObjectValidationStrategy(bool shouldUseValidationModelName)
     {
+        _shouldUseValidationModelName = shouldUseValidationModelName;
     }
 
     /// <inheritdoc />
@@ -28,7 +36,7 @@ internal class DefaultComplexObjectValidationStrategy : IValidationStrategy
         string key,
         object model)
     {
-        return new Enumerator(metadata, key, model);
+        return new Enumerator(metadata, key, model, _shouldUseValidationModelName);
     }
 
     private class Enumerator : IEnumerator<ValidationEntry>
@@ -39,6 +47,7 @@ internal class DefaultComplexObjectValidationStrategy : IValidationStrategy
         private readonly ModelMetadata _modelMetadata;
         private readonly IReadOnlyList<ModelMetadata> _parameters;
         private readonly IReadOnlyList<ModelMetadata> _properties;
+        private readonly bool _shouldUseValidationModelName;
 
         private ValidationEntry _entry;
         private int _index;
@@ -46,11 +55,13 @@ internal class DefaultComplexObjectValidationStrategy : IValidationStrategy
         public Enumerator(
             ModelMetadata modelMetadata,
             string key,
-            object model)
+            object model,
+            bool shouldUseValidationModelName)
         {
             _modelMetadata = modelMetadata;
             _key = key;
             _model = model;
+            _shouldUseValidationModelName = shouldUseValidationModelName;
 
             if (_modelMetadata.BoundConstructor == null)
             {
@@ -105,7 +116,13 @@ internal class DefaultComplexObjectValidationStrategy : IValidationStrategy
             else
             {
                 var property = _properties[_index - _parameters.Count];
-                var propertyName = property.ValidationModelName ?? property.BinderModelName ?? property.PropertyName;
+                var propertyName = property.BinderModelName ?? property.PropertyName;
+
+                if (_shouldUseValidationModelName && property.ValidationModelName is not null)
+                {
+                    propertyName = property.ValidationModelName;
+                }
+
                 var key = ModelNames.CreatePropertyModelName(_key, propertyName);
 
                 if (_model == null)

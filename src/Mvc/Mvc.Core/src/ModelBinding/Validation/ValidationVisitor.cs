@@ -17,6 +17,7 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 public class ValidationVisitor
 {
     private readonly ValidationStack _currentPath;
+    private readonly bool _hasApiValidationBehavior;
     private int? _maxValidationDepth;
 
     /// <summary>
@@ -58,6 +59,11 @@ public class ValidationVisitor
 
         ModelState = actionContext.ModelState;
         _currentPath = new ValidationStack();
+
+        if (actionContext is { ActionDescriptor: Controllers.ControllerActionDescriptor controller })
+        {
+            _hasApiValidationBehavior = controller.HasApiBehavior;
+        }
     }
 
     /// <summary>
@@ -229,7 +235,10 @@ public class ValidationVisitor
                     Metadata!,
                     MetadataProvider,
                     Container,
-                    Model);
+                    Model)
+                {
+                    HasApiValidationBehavior = _hasApiValidationBehavior
+                };
 
                 var results = new List<ModelValidationResult>();
                 for (var i = 0; i < count; i++)
@@ -374,7 +383,9 @@ public class ValidationVisitor
 
             if (Metadata.IsComplexType)
             {
-                return VisitComplexType(DefaultComplexObjectValidationStrategy.Instance);
+                return VisitComplexType(_hasApiValidationBehavior ?
+                    DefaultComplexObjectValidationStrategy.ApiBehaviorInstance :
+                    DefaultComplexObjectValidationStrategy.Instance);
             }
 
             return VisitSimpleType();
@@ -446,6 +457,7 @@ public class ValidationVisitor
             var entry = enumerator.Current;
             var metadata = entry.Metadata;
             var key = entry.Key;
+
             if (metadata.PropertyValidationFilter?.ShouldValidateEntry(entry, parentEntry) == false)
             {
                 SuppressValidation(key);
