@@ -97,8 +97,8 @@ internal sealed class CompareAttributeAdapter : AttributeAdapterBase<CompareAttr
                     attribute.OtherProperty);
                 if (otherProperty != null)
                 {
-                    // We should use the validationmodelName when it exists
-                    // where we are validating using an ApiModelValidationContext
+                    // We should use the validationmodelName if it exists
+                    // when we are validating using an ApiModelValidationContext
                     // to be consistent with the validationContenxt.ModelDispayName
                     if (validationContext is ApiModelValidationContext)
                     {

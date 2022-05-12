@@ -178,7 +178,7 @@ public class ControllerModel : ICommonModel, IFilterModel, IApiExplorerModel
     }
 
     /// <summary>
-    /// Gets a flag that Indicates if the controller is configured to
+    /// Gets a flag that indicates if the controller is configured to
     /// have an HTTP API behavior (<see cref="IApiBehaviorMetadata"/>).
     /// </summary>
     internal bool HasApiBehavior { get; }
