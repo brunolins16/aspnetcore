@@ -54,5 +54,5 @@ public class ModelValidationContextBase
     /// </summary>
     public IModelMetadataProvider MetadataProvider { get; }
 
-    internal bool HasApiValidationBehavior { get; init; }
+    internal virtual string ModelDisplayName => ModelMetadata.GetDisplayName();
 }

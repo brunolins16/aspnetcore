@@ -230,15 +230,9 @@ public class ValidationVisitor
             var count = validators.Count;
             if (count > 0)
             {
-                var context = new ModelValidationContext(
-                    Context,
-                    Metadata!,
-                    MetadataProvider,
-                    Container,
-                    Model)
-                {
-                    HasApiValidationBehavior = _hasApiValidationBehavior
-                };
+                var context = _hasApiValidationBehavior ?
+                    new ApiModelValidationContext(Context, Metadata!, MetadataProvider, Container, Model) :
+                    new ModelValidationContext(Context, Metadata!, MetadataProvider, Container, Model);
 
                 var results = new List<ModelValidationResult>();
                 for (var i = 0; i < count; i++)
@@ -384,7 +378,7 @@ public class ValidationVisitor
             if (Metadata.IsComplexType)
             {
                 return VisitComplexType(_hasApiValidationBehavior ?
-                    DefaultComplexObjectValidationStrategy.ApiBehaviorInstance :
+                    DefaultComplexObjectValidationStrategy.InstanceWithApiBehavior :
                     DefaultComplexObjectValidationStrategy.Instance);
             }
 

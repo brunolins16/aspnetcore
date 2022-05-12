@@ -39,16 +39,16 @@ internal sealed class CompareAttributeAdapter : AttributeAdapterBase<CompareAttr
             throw new ArgumentNullException(nameof(validationContext));
         }
 
-        var displayName = validationContext.HasApiValidationBehavior ?
-            validationContext.ModelMetadata.GetValidationModelNameOrDisplayName() :
-            validationContext.ModelMetadata.GetDisplayName();
         var otherPropertyDisplayName = CompareAttributeWrapper.GetOtherPropertyDisplayName(
             validationContext,
             Attribute);
 
         ((CompareAttributeWrapper)Attribute).ValidationContext = validationContext;
 
-        return GetErrorMessage(validationContext.ModelMetadata, displayName, otherPropertyDisplayName);
+        return GetErrorMessage(
+            validationContext.ModelMetadata,
+            validationContext.ModelDisplayName,
+            otherPropertyDisplayName);
     }
 
     // TODO: This entire class is needed because System.ComponentModel.DataAnnotations.CompareAttribute doesn't
@@ -76,12 +76,9 @@ internal sealed class CompareAttributeAdapter : AttributeAdapterBase<CompareAttr
 
         public override string FormatErrorMessage(string name)
         {
-            var displayName = ValidationContext.HasApiValidationBehavior ?
-                ValidationContext.ModelMetadata.GetValidationModelNameOrDisplayName() :
-                ValidationContext.ModelMetadata.GetDisplayName(); ;
             return string.Format(CultureInfo.CurrentCulture,
                                  ErrorMessageString,
-                                 displayName,
+                                 ValidationContext.ModelDisplayName,
                                  GetOtherPropertyDisplayName(ValidationContext, this));
         }
 
@@ -100,6 +97,14 @@ internal sealed class CompareAttributeAdapter : AttributeAdapterBase<CompareAttr
                     attribute.OtherProperty);
                 if (otherProperty != null)
                 {
+                    // We should use the validationmodelName when it exists
+                    // where we are validating using an ApiModelValidationContext
+                    // to be consistent with the validationContenxt.ModelDispayName
+                    if (validationContext is ApiModelValidationContext)
+                    {
+                        return otherProperty.ValidationModelName ?? otherProperty.GetDisplayName();
+                    }
+
                     return otherProperty.GetDisplayName();
                 }
             }

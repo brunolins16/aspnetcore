@@ -23,7 +23,7 @@ internal sealed class DefaultComplexObjectValidationStrategy : IValidationStrate
     /// <summary>
     /// Gets an instance of <see cref="DefaultComplexObjectValidationStrategy"/> that will use the <see cref="ModelMetadata.ValidationModelName"/> if it exists.
     /// </summary>
-    public static readonly IValidationStrategy ApiBehaviorInstance = new DefaultComplexObjectValidationStrategy(true);
+    public static readonly IValidationStrategy InstanceWithApiBehavior = new DefaultComplexObjectValidationStrategy(true);
 
     private DefaultComplexObjectValidationStrategy(bool shouldUseValidationModelName)
     {

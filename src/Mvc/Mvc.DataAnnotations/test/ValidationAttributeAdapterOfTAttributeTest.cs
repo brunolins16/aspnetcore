@@ -63,7 +63,7 @@ public class ValidationAttributeAdapterOfTAttributeTest
 
         public string GetErrorMessage(ModelValidationContextBase validationContext)
         {
-            var displayName = validationContext.ModelMetadata.GetDisplayName();
+            var displayName = validationContext.ModelDisplayName;
             return GetErrorMessage(validationContext.ModelMetadata, displayName);
         }
     }

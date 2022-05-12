@@ -35,7 +35,7 @@ internal sealed class ValidatableObjectAdapter : IModelValidator
             serviceProvider: context.ActionContext?.HttpContext?.RequestServices,
             items: null)
         {
-            DisplayName = context.ModelMetadata.GetDisplayName(),
+            DisplayName = context.ModelDisplayName,
             MemberName = context.ModelMetadata.Name,
         };
 
