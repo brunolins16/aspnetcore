@@ -12,6 +12,7 @@ Microsoft.AspNetCore.Mvc.ProblemDetails (forwarded, contained in Microsoft.AspNe
 Microsoft.AspNetCore.Mvc.ProblemDetails.Detail.get -> string? (forwarded, contained in Microsoft.AspNetCore.Http.Abstractions)
 Microsoft.AspNetCore.Mvc.ProblemDetails.Detail.set -> void (forwarded, contained in Microsoft.AspNetCore.Http.Abstractions)
 Microsoft.AspNetCore.Mvc.ProblemDetails.Extensions.get -> System.Collections.Generic.IDictionary<string!, object?>! (forwarded, contained in Microsoft.AspNetCore.Http.Abstractions)
+Microsoft.AspNetCore.Mvc.ProblemDetails.Extensions.set -> void (forwarded, contained in Microsoft.AspNetCore.Http.Abstractions)
 Microsoft.AspNetCore.Mvc.ProblemDetails.Instance.get -> string? (forwarded, contained in Microsoft.AspNetCore.Http.Abstractions)
 Microsoft.AspNetCore.Mvc.ProblemDetails.Instance.set -> void (forwarded, contained in Microsoft.AspNetCore.Http.Abstractions)
 Microsoft.AspNetCore.Mvc.ProblemDetails.ProblemDetails() -> void (forwarded, contained in Microsoft.AspNetCore.Http.Abstractions)
@@ -31,6 +32,7 @@ Microsoft.AspNetCore.Mvc.ModelBinding.Metadata.SystemTextJsonValidationMetadataP
 Microsoft.AspNetCore.Mvc.ModelBinding.Metadata.SystemTextJsonValidationMetadataProvider.SystemTextJsonValidationMetadataProvider(System.Text.Json.JsonNamingPolicy! namingPolicy) -> void
 Microsoft.AspNetCore.Mvc.ModelBinding.Metadata.ValidationMetadata.ValidationModelName.get -> string?
 Microsoft.AspNetCore.Mvc.ModelBinding.Metadata.ValidationMetadata.ValidationModelName.set -> void
+Microsoft.AspNetCore.Mvc.ValidationProblemDetails.Errors.set -> void
 override Microsoft.AspNetCore.Mvc.ModelBinding.JQueryFormValueProvider.GetValue(string! key) -> Microsoft.AspNetCore.Mvc.ModelBinding.ValueProviderResult
 virtual Microsoft.AspNetCore.Mvc.Infrastructure.ConfigureCompatibilityOptions<TOptions>.PostConfigure(string? name, TOptions! options) -> void
 static Microsoft.AspNetCore.Mvc.ControllerBase.Empty.get -> Microsoft.AspNetCore.Mvc.EmptyResult!

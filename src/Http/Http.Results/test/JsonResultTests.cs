@@ -3,6 +3,7 @@
 
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,8 @@ namespace Microsoft.AspNetCore.Http.HttpResults;
 
 public class JsonResultTests
 {
+    private static JsonSerializerOptions DefaultJsonSerializerOptions => new JsonOptions().SerializerOptions;
+
     [Fact]
     public async Task JsonResult_ExecuteAsync_WithNullValue_Works()
     {
@@ -130,7 +133,7 @@ public class JsonResultTests
         // Assert
         Assert.Equal(StatusCodes.Status500InternalServerError, httpContext.Response.StatusCode);
         stream.Position = 0;
-        var responseDetails = JsonSerializer.Deserialize<ProblemDetails>(stream);
+        var responseDetails = JsonSerializer.Deserialize<ProblemDetails>(stream, DefaultJsonSerializerOptions);
         Assert.Equal("https://tools.ietf.org/html/rfc9110#section-15.6.1", responseDetails.Type);
         Assert.Equal("An error occurred while processing your request.", responseDetails.Title);
         Assert.Equal(StatusCodes.Status500InternalServerError, responseDetails.Status);
@@ -159,7 +162,7 @@ public class JsonResultTests
         // Assert
         Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
         stream.Position = 0;
-        var responseDetails = JsonSerializer.Deserialize<HttpValidationProblemDetails>(stream);
+        var responseDetails = JsonSerializer.Deserialize<HttpValidationProblemDetails>(stream, DefaultJsonSerializerOptions);
         Assert.Equal("https://tools.ietf.org/html/rfc9110#section-15.5.1", responseDetails.Type);
         Assert.Equal("One or more validation errors occurred.", responseDetails.Title);
         Assert.Equal(StatusCodes.Status400BadRequest, responseDetails.Status);
@@ -191,7 +194,7 @@ public class JsonResultTests
         // Assert
         Assert.Equal(StatusCodes.Status418ImATeapot, httpContext.Response.StatusCode);
         stream.Position = 0;
-        var responseDetails = JsonSerializer.Deserialize<HttpValidationProblemDetails>(stream);
+        var responseDetails = JsonSerializer.Deserialize<HttpValidationProblemDetails>(stream, DefaultJsonSerializerOptions);
         Assert.Null(responseDetails.Type);
         Assert.Equal("I'm a teapot", responseDetails.Title);
         Assert.Equal(StatusCodes.Status418ImATeapot, responseDetails.Status);

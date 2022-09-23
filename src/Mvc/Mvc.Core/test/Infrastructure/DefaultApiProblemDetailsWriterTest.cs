@@ -14,6 +14,7 @@ namespace Microsoft.AspNetCore.Mvc.Infrastructure;
 
 public class DefaultApiProblemDetailsWriterTest
 {
+    private static readonly JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web);
 
     [Fact]
     public async Task WriteAsync_Works()
@@ -42,7 +43,7 @@ public class DefaultApiProblemDetailsWriterTest
 
         //Assert
         stream.Position = 0;
-        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream);
+        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream, jsonOptions);
         Assert.NotNull(problemDetails);
         Assert.Equal(expectedProblem.Status, problemDetails.Status);
         Assert.Equal(expectedProblem.Type, problemDetails.Type);
@@ -73,7 +74,7 @@ public class DefaultApiProblemDetailsWriterTest
 
         //Assert
         stream.Position = 0;
-        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream);
+        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream, jsonOptions);
         Assert.NotNull(problemDetails);
         Assert.Contains("Extension1", problemDetails.Extensions);
         Assert.Contains("Extension2", problemDetails.Extensions);
@@ -178,7 +179,6 @@ public class DefaultApiProblemDetailsWriterTest
         var services = new ServiceCollection();
         services.AddTransient(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
-
         return services.BuildServiceProvider();
     }
 

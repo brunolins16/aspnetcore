@@ -9,7 +9,6 @@ namespace Microsoft.AspNetCore.Http;
 /// <summary>
 /// A <see cref="ProblemDetails"/> for validation errors.
 /// </summary>
-[JsonConverter(typeof(HttpValidationProblemDetailsJsonConverter))]
 public class HttpValidationProblemDetails : ProblemDetails
 {
     /// <summary>
@@ -38,5 +37,6 @@ public class HttpValidationProblemDetails : ProblemDetails
     /// <summary>
     /// Gets the validation errors associated with this instance of <see cref="HttpValidationProblemDetails"/>.
     /// </summary>
-    public IDictionary<string, string[]> Errors { get; } = new Dictionary<string, string[]>(StringComparer.Ordinal);
+    [JsonPropertyOrder(6)]
+    public IDictionary<string, string[]> Errors { get; set; } = new Dictionary<string, string[]>(StringComparer.Ordinal);
 }

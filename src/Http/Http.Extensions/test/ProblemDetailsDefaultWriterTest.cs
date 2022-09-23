@@ -7,11 +7,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http.Json;
 
 namespace Microsoft.AspNetCore.Http.Extensions.Tests;
 
 public class DefaultProblemDetailsWriterTest
 {
+    private static JsonSerializerOptions JsonSerializerOptions => new JsonOptions().SerializerOptions;
+
     [Fact]
     public async Task WriteAsync_Works()
     {
@@ -38,7 +41,7 @@ public class DefaultProblemDetailsWriterTest
 
         //Assert
         stream.Position = 0;
-        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream);
+        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream, JsonSerializerOptions);
         Assert.NotNull(problemDetails);
         Assert.Equal(expectedProblem.Status, problemDetails.Status);
         Assert.Equal(expectedProblem.Type, problemDetails.Type);
@@ -69,7 +72,7 @@ public class DefaultProblemDetailsWriterTest
 
         //Assert
         stream.Position = 0;
-        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream);
+        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream, JsonSerializerOptions);
         Assert.NotNull(problemDetails);
         Assert.Collection(problemDetails.Extensions,
             (extension) =>
@@ -97,7 +100,7 @@ public class DefaultProblemDetailsWriterTest
 
         //Assert
         stream.Position = 0;
-        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream);
+        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream, JsonSerializerOptions);
         Assert.NotNull(problemDetails);
         Assert.Equal(StatusCodes.Status500InternalServerError, problemDetails.Status);
         Assert.Equal("https://tools.ietf.org/html/rfc9110#section-15.6.1", problemDetails.Type);
@@ -130,7 +133,7 @@ public class DefaultProblemDetailsWriterTest
 
         //Assert
         stream.Position = 0;
-        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream);
+        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream, JsonSerializerOptions);
         Assert.NotNull(problemDetails);
         Assert.Equal(StatusCodes.Status406NotAcceptable, problemDetails.Status);
         Assert.Equal("https://tools.ietf.org/html/rfc9110#section-15.5.1", problemDetails.Type);
@@ -161,7 +164,7 @@ public class DefaultProblemDetailsWriterTest
 
         //Assert
         stream.Position = 0;
-        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream);
+        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream, JsonSerializerOptions);
         Assert.NotNull(problemDetails);
         Assert.Equal(statusCode, problemDetails.Status);
         Assert.Equal(type, problemDetails.Type);
