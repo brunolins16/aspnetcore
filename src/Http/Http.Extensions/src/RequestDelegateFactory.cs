@@ -8,6 +8,7 @@ using System.IO.Pipelines;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
@@ -61,6 +62,7 @@ public static partial class RequestDelegateFactory
     private static readonly PropertyInfo RouteValuesIndexerProperty = typeof(RouteValueDictionary).GetProperty("Item")!;
     private static readonly PropertyInfo HeaderIndexerProperty = typeof(IHeaderDictionary).GetProperty("Item")!;
     private static readonly PropertyInfo FormFilesIndexerProperty = typeof(IFormFileCollection).GetProperty("Item")!;
+    private static readonly PropertyInfo FormIndexerProperty = typeof(IFormCollection).GetProperty("Item")!;
 
     private static readonly MethodInfo JsonResultWriteResponseAsyncMethod = typeof(RequestDelegateFactory).GetMethod(nameof(WriteJsonResponse), BindingFlags.NonPublic | BindingFlags.Static)!;
 
@@ -110,6 +112,7 @@ public static partial class RequestDelegateFactory
 
     private static readonly string[] DefaultAcceptsAndProducesContentType = new[] { JsonConstants.JsonContentType };
     private static readonly string[] FormFileContentType = new[] { "multipart/form-data" };
+    private static readonly string[] FormContentType = new[] { "multipart/form-data", "application/x-www-form-urlencoded" };
     private static readonly string[] PlaintextContentType = new[] { "text/plain" };
 
     /// <summary>
@@ -662,7 +665,17 @@ public static partial class RequestDelegateFactory
 
         var parameterCustomAttributes = parameter.GetCustomAttributes();
 
-        if (parameterCustomAttributes.OfType<IFromRouteMetadata>().FirstOrDefault() is { } routeAttribute)
+        if (parameterCustomAttributes.OfType<AsParametersAttribute>().Any())
+        {
+            if (parameter is PropertyAsParameterInfo)
+            {
+                throw new NotSupportedException(
+                    $"Nested {nameof(AsParametersAttribute)} is not supported and should be used only for handler parameters.");
+            }
+
+            return BindParameterFromProperties(parameter, factoryContext);
+        }
+        else if (parameterCustomAttributes.OfType<IFromRouteMetadata>().FirstOrDefault() is { } routeAttribute)
         {
             var routeName = routeAttribute.Name ?? parameter.Name;
             factoryContext.TrackedParameters.Add(parameter.Name, RequestDelegateFactoryConstants.RouteAttribute);
@@ -710,28 +723,28 @@ public static partial class RequestDelegateFactory
 
                 return BindParameterFromFormFiles(parameter, factoryContext);
             }
-            else if (parameter.ParameterType != typeof(IFormFile))
+            else if (parameter.ParameterType == typeof(IFormCollection))
             {
-                throw new NotSupportedException(
-                    $"{nameof(IFromFormMetadata)} is only supported for parameters of type {nameof(IFormFileCollection)} and {nameof(IFormFile)}.");
+
+                if (!string.IsNullOrEmpty(formAttribute.Name))
+                {
+                    throw new NotSupportedException(
+                        $"Assigning a value to the {nameof(IFromFormMetadata)}.{nameof(IFromFormMetadata.Name)} property is not supported for parameters of type {nameof(IFormCollection)}.");
+
+                }
+                return BindParameterFromFormCollection(parameter, factoryContext);
+            }
+            else if (parameter.ParameterType == typeof(IFormFile))
+            {
+                return BindParameterFromFormFile(parameter, formAttribute.Name ?? parameter.Name, factoryContext, RequestDelegateFactoryConstants.FormFileAttribute);
             }
 
-            return BindParameterFromFormFile(parameter, formAttribute.Name ?? parameter.Name, factoryContext, RequestDelegateFactoryConstants.FormFileAttribute);
+            return BindParameterFromFormValue(parameter, formAttribute.Name ?? parameter.Name, factoryContext);
         }
         else if (parameter.CustomAttributes.Any(a => typeof(IFromServiceMetadata).IsAssignableFrom(a.AttributeType)))
         {
             factoryContext.TrackedParameters.Add(parameter.Name, RequestDelegateFactoryConstants.ServiceAttribute);
             return BindParameterFromService(parameter, factoryContext);
-        }
-        else if (parameterCustomAttributes.OfType<AsParametersAttribute>().Any())
-        {
-            if (parameter is PropertyAsParameterInfo)
-            {
-                throw new NotSupportedException(
-                    $"Nested {nameof(AsParametersAttribute)} is not supported and should be used only for handler parameters.");
-            }
-
-            return BindParameterFromProperties(parameter, factoryContext);
         }
         else if (parameter.ParameterType == typeof(HttpContext))
         {
@@ -760,6 +773,10 @@ public static partial class RequestDelegateFactory
         else if (parameter.ParameterType == typeof(IFormFile))
         {
             return BindParameterFromFormFile(parameter, parameter.Name, factoryContext, RequestDelegateFactoryConstants.FormFileParameter);
+        }
+        else if (parameter.ParameterType == typeof(IFormCollection))
+        {
+            return BindParameterFromFormCollection(parameter, factoryContext);
         }
         else if (parameter.ParameterType == typeof(Stream))
         {
@@ -1382,6 +1399,31 @@ public static partial class RequestDelegateFactory
             throw new InvalidOperationException($"The nullable type '{TypeNameHelper.GetTypeDisplayName(parameter.ParameterType, fullName: false)}' is not supported, mark the parameter as non-nullable.");
         }
 
+        static Attribute? GetSourceAttribute(ParameterInfo parameter)
+        {
+            var attributes = parameter.GetCustomAttributes().ToArray();
+            for (var i = 0; i < attributes.Length; i++)
+            {
+                var attribute = attributes[i];
+
+                if (attribute is IFromRouteMetadata ||
+                    attribute is IFromServiceMetadata ||
+                    attribute is IFromBodyMetadata)
+                {
+                    throw new NotSupportedException("FromRoute / FromServices / FromBody not supported.");
+                }
+                else if (attribute is IFromQueryMetadata ||
+                    attribute is IFromHeaderMetadata ||
+                    attribute is IFromFormMetadata)
+                {
+                    return attribute;
+                }
+            }
+
+            return null;
+        }
+
+        var sourceAttribute = GetSourceAttribute(parameter);
         var argumentExpression = Expression.Variable(parameter.ParameterType, $"{parameter.Name}_local");
         var (constructor, parameters) = ParameterBindingMethodCache.FindConstructor(parameterType);
 
@@ -1396,7 +1438,7 @@ public static partial class RequestDelegateFactory
             for (var i = 0; i < parameters.Length; i++)
             {
                 var parameterInfo =
-                    new PropertyAsParameterInfo(parameters[i].PropertyInfo, parameters[i].ParameterInfo, factoryContext.NullabilityContext);
+                    new PropertyAsParameterInfo(parameters[i].PropertyInfo, parameters[i].ParameterInfo, factoryContext.NullabilityContext, sourceAttribute);
                 constructorArguments[i] = CreateArgument(parameterInfo, factoryContext);
                 factoryContext.Parameters.Add(parameterInfo);
             }
@@ -1419,7 +1461,8 @@ public static partial class RequestDelegateFactory
                 // For parameterless ctor we will init only writable properties.
                 if (properties[i].CanWrite)
                 {
-                    var parameterInfo = new PropertyAsParameterInfo(properties[i], factoryContext.NullabilityContext);
+                    var parameterInfo = new PropertyAsParameterInfo(properties[i], factoryContext.NullabilityContext, sourceAttribute);
+
                     bindings.Add(Expression.Bind(properties[i], CreateArgument(parameterInfo, factoryContext)));
                     factoryContext.Parameters.Add(parameterInfo);
                 }
@@ -1460,15 +1503,6 @@ public static partial class RequestDelegateFactory
             return BindParameterFromExpression(parameter, valueExpression, factoryContext, source);
         }
 
-        var isOptional = IsOptionalParameter(parameter, factoryContext);
-        var argument = Expression.Variable(parameter.ParameterType, $"{parameter.Name}_local");
-
-        var parameterTypeNameConstant = Expression.Constant(TypeNameHelper.GetTypeDisplayName(parameter.ParameterType, fullName: false));
-        var parameterNameConstant = Expression.Constant(parameter.Name);
-        var sourceConstant = Expression.Constant(source);
-
-        factoryContext.UsingTempSourceString = true;
-
         var targetParseType = parameter.ParameterType.IsArray ? parameter.ParameterType.GetElementType()! : parameter.ParameterType;
 
         var underlyingNullableType = Nullable.GetUnderlyingType(targetParseType);
@@ -1482,6 +1516,15 @@ public static partial class RequestDelegateFactory
             var typeName = TypeNameHelper.GetTypeDisplayName(targetParseType, fullName: false);
             throw new InvalidOperationException($"No public static bool {typeName}.TryParse(string, out {typeName}) method found for {parameter.Name}.");
         }
+
+        var isOptional = IsOptionalParameter(parameter, factoryContext);
+        var argument = Expression.Variable(parameter.ParameterType, $"{parameter.Name}_local");
+
+        var parameterTypeNameConstant = Expression.Constant(TypeNameHelper.GetTypeDisplayName(parameter.ParameterType, fullName: false));
+        var parameterNameConstant = Expression.Constant(parameter.Name);
+        var sourceConstant = Expression.Constant(source);
+
+        factoryContext.UsingTempSourceString = true;
 
         // string tempSourceString;
         // bool wasParamCheckFailure = false;
@@ -1820,26 +1863,86 @@ public static partial class RequestDelegateFactory
         factoryContext.EndpointBuilder.Metadata.Add(new AcceptsMetadata(type, factoryContext.AllowEmptyRequestBody, contentTypes));
     }
 
-    private static Expression BindParameterFromFormFiles(
-        ParameterInfo parameter,
-        RequestDelegateFactoryContext factoryContext)
+    private static void TrackFormParameter(
+       ParameterInfo parameter,
+       string key,
+       string trackedParameterSource,
+       RequestDelegateFactoryContext factoryContext,
+       bool isFormFile = false)
     {
         if (factoryContext.FirstFormRequestBodyParameter is null)
         {
             factoryContext.FirstFormRequestBodyParameter = parameter;
         }
 
-        factoryContext.TrackedParameters.Add(parameter.Name!, RequestDelegateFactoryConstants.FormFileParameter);
+        factoryContext.TrackedParameters.Add(key, trackedParameterSource);
+        factoryContext.ReadForm = true;
+
+        if (isFormFile)
+        {
+            factoryContext.ReadFormFile = true;
+        }
+    }
+
+    private static Expression BindParameterFromFormCollection(
+        ParameterInfo parameter,
+        RequestDelegateFactoryContext factoryContext)
+    {
+        // Do not duplicate the metadata if there are multiple form parameters
+        if (!factoryContext.ReadForm)
+        {
+            AddInferredAcceptsMetadata(factoryContext, parameter.ParameterType, FormContentType);
+        }
+
+        TrackFormParameter(parameter, parameter.Name!, RequestDelegateFactoryConstants.FormFileParameter, factoryContext);
+
+        return BindParameterFromExpression(
+            parameter,
+            FormExpr,
+            factoryContext,
+            RequestDelegateFactoryConstants.FormCollectionParameter);
+    }
+
+    private static Expression BindParameterFromFormValue(
+        ParameterInfo parameter,
+        string key,
+        RequestDelegateFactoryContext factoryContext)
+    {
+        var valueExpression = GetValueFromProperty(FormExpr, FormIndexerProperty, key, GetExpressionType(parameter.ParameterType));
 
         // Do not duplicate the metadata if there are multiple form parameters
         if (!factoryContext.ReadForm)
         {
+            AddInferredAcceptsMetadata(factoryContext, parameter.ParameterType, FormContentType);
+        }
+
+        TrackFormParameter(parameter, key, RequestDelegateFactoryConstants.FormAttribute, factoryContext);
+
+        return BindParameterFromValue(
+            parameter,
+            valueExpression,
+            factoryContext,
+            RequestDelegateFactoryConstants.FormAttribute);
+    }
+
+    private static Expression BindParameterFromFormFiles(
+        ParameterInfo parameter,
+        RequestDelegateFactoryContext factoryContext)
+    {
+        // Do not duplicate the metadata if there are multiple form parameters
+        if (!factoryContext.ReadFormFile)
+        {
+            //TODO: should add multiples content-types
             AddInferredAcceptsMetadata(factoryContext, parameter.ParameterType, FormFileContentType);
         }
 
-        factoryContext.ReadForm = true;
+        TrackFormParameter(parameter, parameter.Name!, RequestDelegateFactoryConstants.FormFileParameter, factoryContext, isFormFile: true);
 
-        return BindParameterFromExpression(parameter, FormFilesExpr, factoryContext, "body");
+        return BindParameterFromExpression(
+            parameter,
+            FormFilesExpr,
+            factoryContext,
+            RequestDelegateFactoryConstants.FormFileParameter);
     }
 
     private static Expression BindParameterFromFormFile(
@@ -1848,24 +1951,22 @@ public static partial class RequestDelegateFactory
         RequestDelegateFactoryContext factoryContext,
         string trackedParameterSource)
     {
-        if (factoryContext.FirstFormRequestBodyParameter is null)
-        {
-            factoryContext.FirstFormRequestBodyParameter = parameter;
-        }
-
-        factoryContext.TrackedParameters.Add(key, trackedParameterSource);
+        var valueExpression = GetValueFromProperty(FormFilesExpr, FormFilesIndexerProperty, key, typeof(IFormFile));
 
         // Do not duplicate the metadata if there are multiple form parameters
-        if (!factoryContext.ReadForm)
+        if (!factoryContext.ReadFormFile)
         {
+            //TODO: should add multiples content-types
             AddInferredAcceptsMetadata(factoryContext, parameter.ParameterType, FormFileContentType);
         }
 
-        factoryContext.ReadForm = true;
+        TrackFormParameter(parameter, key, trackedParameterSource, factoryContext, isFormFile: true);
 
-        var valueExpression = GetValueFromProperty(FormFilesExpr, FormFilesIndexerProperty, key, typeof(IFormFile));
-
-        return BindParameterFromExpression(parameter, valueExpression, factoryContext, "form file");
+        return BindParameterFromExpression(
+            parameter,
+            valueExpression,
+            factoryContext,
+            trackedParameterSource);
     }
 
     private static Expression BindParameterFromBody(ParameterInfo parameter, bool allowEmpty, RequestDelegateFactoryContext factoryContext)
@@ -2210,12 +2311,14 @@ public static partial class RequestDelegateFactory
         public const string BodyAttribute = "Body (Attribute)";
         public const string ServiceAttribute = "Service (Attribute)";
         public const string FormFileAttribute = "Form File (Attribute)";
+        public const string FormAttribute = "Form (Attribute)";
         public const string RouteParameter = "Route (Inferred)";
         public const string QueryStringParameter = "Query String (Inferred)";
         public const string ServiceParameter = "Services (Inferred)";
         public const string BodyParameter = "Body (Inferred)";
         public const string RouteOrQueryStringParameter = "Route or Query String (Inferred)";
         public const string FormFileParameter = "Form File (Inferred)";
+        public const string FormCollectionParameter = "Form Collection (Inferred)";
         public const string PropertyAsParameter = "As Parameter (Attribute)";
     }
 

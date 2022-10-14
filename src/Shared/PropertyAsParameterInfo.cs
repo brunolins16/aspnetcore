@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.Extensions.Internal;
 
 namespace Microsoft.AspNetCore.Http;
@@ -15,11 +16,12 @@ internal sealed class PropertyAsParameterInfo : ParameterInfo
 {
     private readonly PropertyInfo _underlyingProperty;
     private readonly ParameterInfo? _constructionParameterInfo;
+    private readonly Attribute? _parentSourceAttribute;
 
     private readonly NullabilityInfoContext _nullabilityContext;
     private NullabilityInfo? _nullabilityInfo;
 
-    public PropertyAsParameterInfo(PropertyInfo propertyInfo, NullabilityInfoContext? nullabilityContext = null)
+    public PropertyAsParameterInfo(PropertyInfo propertyInfo, NullabilityInfoContext? nullabilityContext = null, Attribute? parentSourceAttribute = null)
     {
         Debug.Assert(null != propertyInfo);
 
@@ -34,10 +36,11 @@ internal sealed class PropertyAsParameterInfo : ParameterInfo
 
         _nullabilityContext = nullabilityContext ?? new NullabilityInfoContext();
         _underlyingProperty = propertyInfo;
+        _parentSourceAttribute = parentSourceAttribute;
     }
 
-    public PropertyAsParameterInfo(PropertyInfo property, ParameterInfo parameterInfo, NullabilityInfoContext? nullabilityContext = null)
-        : this(property, nullabilityContext)
+    public PropertyAsParameterInfo(PropertyInfo property, ParameterInfo parameterInfo, NullabilityInfoContext? nullabilityContext = null, Attribute? parentSourceAttribute = null)
+        : this(property, nullabilityContext, parentSourceAttribute)
     {
         _constructionParameterInfo = parameterInfo;
     }
@@ -95,6 +98,7 @@ internal sealed class PropertyAsParameterInfo : ParameterInfo
                     throw new InvalidOperationException($"The nullable type '{TypeNameHelper.GetTypeDisplayName(parameters[i].ParameterType, fullName: false)}' is not supported.");
                 }
 
+                var sourceAttribute = GetSourceAttribute(parameters[i]);
                 var (constructor, constructorParameters) = cache.FindConstructor(parameters[i].ParameterType);
                 if (constructor is not null && constructorParameters is { Length: > 0 })
                 {
@@ -104,7 +108,8 @@ internal sealed class PropertyAsParameterInfo : ParameterInfo
                             new PropertyAsParameterInfo(
                                 constructorParameter.PropertyInfo,
                                 constructorParameter.ParameterInfo,
-                                nullabilityContext));
+                                nullabilityContext,
+                                sourceAttribute));
                     }
                 }
                 else
@@ -115,7 +120,7 @@ internal sealed class PropertyAsParameterInfo : ParameterInfo
                     {
                         if (property.CanWrite)
                         {
-                            flattenedParameters.Add(new PropertyAsParameterInfo(property, nullabilityContext));
+                            flattenedParameters.Add(new PropertyAsParameterInfo(property, nullabilityContext, sourceAttribute));
                         }
                     }
                 }
@@ -129,6 +134,30 @@ internal sealed class PropertyAsParameterInfo : ParameterInfo
         return flattenedParameters is not null ? CollectionsMarshal.AsSpan(flattenedParameters) : parameters.AsSpan();
     }
 
+    private static Attribute? GetSourceAttribute(ParameterInfo parameter)
+    {
+        var attributes = parameter.GetCustomAttributes().ToArray();
+        for (var i = 0; i < attributes.Length; i++)
+        {
+            var attribute = attributes[i];
+
+            if (attribute is IFromRouteMetadata ||
+                attribute is IFromServiceMetadata ||
+                attribute is IFromBodyMetadata)
+            {
+                throw new NotSupportedException("FromRoute / FromServices / FromBody not supported.");
+            }
+            else if (attribute is IFromQueryMetadata ||
+                attribute is IFromHeaderMetadata ||
+                attribute is IFromFormMetadata)
+            {
+                return attribute;
+            }
+        }
+
+        return null;
+    }
+
     public override object[] GetCustomAttributes(Type attributeType, bool inherit)
     {
         var attributes = _constructionParameterInfo?.GetCustomAttributes(attributeType, inherit);
@@ -136,6 +165,19 @@ internal sealed class PropertyAsParameterInfo : ParameterInfo
         if (attributes == null || attributes is { Length: 0 })
         {
             attributes = _underlyingProperty.GetCustomAttributes(attributeType, inherit);
+        }
+
+        if (_parentSourceAttribute != null && attributeType.IsAssignableFrom(_parentSourceAttribute.GetType()))
+        {
+            if (attributes is { Length: 0 })
+            {
+                return new[] { _parentSourceAttribute };
+            }
+
+            var combinedAttributes = new Attribute[attributes.Length + 1];
+            combinedAttributes[0] = _parentSourceAttribute;
+            attributes.CopyTo(combinedAttributes, 1);
+            return combinedAttributes;
         }
 
         return attributes;
@@ -152,11 +194,28 @@ internal sealed class PropertyAsParameterInfo : ParameterInfo
 
         var propertyAttributes = _underlyingProperty.GetCustomAttributes(inherit);
 
+        var constructorAttributesLength = constructorAttributes?.Length ?? 0;
+        var propertyAttributesLength = propertyAttributes?.Length ?? 0;
+        var requestSourceLength = _parentSourceAttribute == null ? 1 : 0;
+
         // Since the constructors attributes should take priority we will add them first,
         // as we usually call it as First() or FirstOrDefault() in the argument creation
-        var mergedAttributes = new object[constructorAttributes.Length + propertyAttributes.Length];
-        Array.Copy(constructorAttributes, mergedAttributes, constructorAttributes.Length);
-        Array.Copy(propertyAttributes, 0, mergedAttributes, constructorAttributes.Length, propertyAttributes.Length);
+        var mergedAttributes = new Attribute[constructorAttributesLength + propertyAttributesLength + requestSourceLength];
+
+        if (_parentSourceAttribute != null)
+        {
+            mergedAttributes[0] = _parentSourceAttribute;
+        }
+
+        if (constructorAttributesLength > 0)
+        {
+            Array.Copy(constructorAttributes!, 0, mergedAttributes, requestSourceLength, constructorAttributesLength);
+        }
+
+        if (propertyAttributesLength > 0)
+        {
+            Array.Copy(propertyAttributes!, 0, mergedAttributes, constructorAttributesLength + requestSourceLength, propertyAttributesLength);
+        }
 
         return mergedAttributes;
     }
@@ -166,6 +225,11 @@ internal sealed class PropertyAsParameterInfo : ParameterInfo
         var attributes = new List<CustomAttributeData>(
             _constructionParameterInfo?.GetCustomAttributesData() ?? Array.Empty<CustomAttributeData>());
         attributes.AddRange(_underlyingProperty.GetCustomAttributesData());
+
+        if (_parentSourceAttribute != null)
+        {
+            attributes.Insert(0, new AttributeDataWrapper(_parentSourceAttribute));
+        }
 
         return attributes.AsReadOnly();
     }
@@ -188,4 +252,20 @@ internal sealed class PropertyAsParameterInfo : ParameterInfo
         => _nullabilityInfo ??= _constructionParameterInfo is not null ?
         _nullabilityContext.Create(_constructionParameterInfo) :
         _nullabilityContext.Create(_underlyingProperty);
+}
+
+internal sealed class AttributeDataWrapper : CustomAttributeData
+{
+    public AttributeDataWrapper(Attribute attribute)
+    {
+        Type type = attribute.GetType();
+
+        Constructor = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance)[0];
+        ConstructorArguments = Array.Empty<CustomAttributeTypedArgument>();
+        NamedArguments = Array.Empty<CustomAttributeNamedArgument>();
+    }
+
+    public override ConstructorInfo Constructor { get; }
+    public override IList<CustomAttributeTypedArgument> ConstructorArguments { get; }
+    public override IList<CustomAttributeNamedArgument> NamedArguments { get; }
 }
