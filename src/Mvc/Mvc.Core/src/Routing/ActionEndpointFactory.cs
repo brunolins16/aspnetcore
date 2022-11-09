@@ -370,6 +370,14 @@ internal sealed class ActionEndpointFactory
         if (controllerActionDescriptor?.MethodInfo is not null)
         {
             EndpointMetadataPopulator.PopulateMetadata(controllerActionDescriptor.MethodInfo, builder);
+
+            if (builder.Metadata.Count > 0)
+            {
+                foreach (var d in builder.Metadata)
+                {
+                    action.EndpointMetadata.Add(d);
+                }
+            }
         }
 
         // Add action-specific metadata early so it has a low precedence
