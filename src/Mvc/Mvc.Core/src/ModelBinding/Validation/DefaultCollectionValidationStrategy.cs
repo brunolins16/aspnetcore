@@ -39,8 +39,8 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 /// </remarks>
 internal sealed class DefaultCollectionValidationStrategy : IValidationStrategy
 {
-    private static readonly MethodInfo _getEnumerator = typeof(DefaultCollectionValidationStrategy)
-        .GetMethod(nameof(GetEnumerator), BindingFlags.Static | BindingFlags.NonPublic)!;
+    //private static readonly MethodInfo _getEnumerator = typeof(DefaultCollectionValidationStrategy)
+    //    .GetMethod(nameof(GetEnumerator), BindingFlags.Static | BindingFlags.NonPublic)!;
 
     /// <summary>
     /// Gets an instance of <see cref="DefaultCollectionValidationStrategy"/>.
@@ -58,33 +58,33 @@ internal sealed class DefaultCollectionValidationStrategy : IValidationStrategy
         string key,
         object model)
     {
-        var enumerator = GetEnumeratorForElementType(metadata, model);
+        var enumerator = ((IEnumerable)model).GetEnumerator();
         return new Enumerator(metadata.ElementMetadata!, key, enumerator);
     }
 
-    public IEnumerator GetEnumeratorForElementType(ModelMetadata metadata, object model)
-    {
-        Func<object, IEnumerator> getEnumerator = _genericGetEnumeratorCache.GetOrAdd(
-            key: metadata.ElementType!,
-            valueFactory: (type) =>
-            {
-                var getEnumeratorMethod = _getEnumerator.MakeGenericMethod(type);
-                var parameter = Expression.Parameter(typeof(object), "model");
-                var expression =
-                    Expression.Lambda<Func<object, IEnumerator>>(
-                        Expression.Call(null, getEnumeratorMethod, parameter),
-                        parameter);
-                return expression.Compile();
-            });
+    //public IEnumerator GetEnumeratorForElementType(ModelMetadata metadata, object model)
+    //{
+    //    Func<object, IEnumerator> getEnumerator = _genericGetEnumeratorCache.GetOrAdd(
+    //        key: metadata.ElementType!,
+    //        valueFactory: (type) =>
+    //        {
+    //            var getEnumeratorMethod = _getEnumerator.MakeGenericMethod(type);
+    //            var parameter = Expression.Parameter(typeof(object), "model");
+    //            var expression =
+    //                Expression.Lambda<Func<object, IEnumerator>>(
+    //                    Expression.Call(null, getEnumeratorMethod, parameter),
+    //                    parameter);
+    //            return expression.Compile();
+    //        });
 
-        return getEnumerator(model);
-    }
+    //    return getEnumerator(model);
+    //}
 
-    // Called via reflection.
-    private static IEnumerator GetEnumerator<T>(object model)
-    {
-        return (model as IEnumerable<T>)?.GetEnumerator() ?? ((IEnumerable)model).GetEnumerator();
-    }
+    //// Called via reflection.
+    //private static IEnumerator GetEnumerator<T>(object model)
+    //{
+    //    return (model as IEnumerable<T>)?.GetEnumerator() ?? ((IEnumerable)model).GetEnumerator();
+    //}
 
     private sealed class Enumerator : IEnumerator<ValidationEntry>
     {

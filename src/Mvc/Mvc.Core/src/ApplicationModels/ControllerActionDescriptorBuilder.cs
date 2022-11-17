@@ -33,6 +33,8 @@ internal static class ControllerActionDescriptorBuilder
         {
             ActionName = action.ActionName,
             MethodInfo = action.ActionMethod,
+            MethodExecutor = action.ActionMethodInvoker,
+            MethodAwaitableInfo = action.ActionMethodAwaitableInfo,
         };
 
         actionDescriptor.ControllerName = controller.ControllerName;

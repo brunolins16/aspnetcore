@@ -54,10 +54,32 @@ internal sealed class ControllerActionInvokerCache
             var parameterDefaultValues = ParameterDefaultValues
                 .GetParameterDefaultValues(actionDescriptor.MethodInfo);
 
-            var objectMethodExecutor = ObjectMethodExecutor.Create(
-                actionDescriptor.MethodInfo,
-                actionDescriptor.ControllerTypeInfo,
-                parameterDefaultValues);
+            Func<object, object?[]?, ObjectMethodExecutorAwaitable>? asyncExecutor = null;
+            if (actionDescriptor.MethodAwaitableInfo != null)
+            {
+                var awaitableInfo = actionDescriptor.MethodAwaitableInfo.Value;
+                asyncExecutor = (object target, object?[]? parameters)
+                    => new ObjectMethodExecutorAwaitable(
+                        actionDescriptor.MethodExecutor!.Invoke(target, parameters),
+                        awaitableInfo.GetAwaiterMethod,
+                        awaitableInfo.AwaiterIsCompletedProperty,
+                        awaitableInfo.AwaiterGetResultMethod,
+                        awaitableInfo.AwaiterOnCompletedMethod,
+                        awaitableInfo.AwaiterUnsafeOnCompletedMethod);
+            }
+
+            var objectMethodExecutor = actionDescriptor.MethodExecutor == null ?
+                ObjectMethodExecutor.Create(
+                    actionDescriptor.MethodInfo,
+                    actionDescriptor.ControllerTypeInfo,
+                    parameterDefaultValues) :
+                ObjectMethodExecutor.Create(
+                    actionDescriptor.MethodInfo,
+                    actionDescriptor.ControllerTypeInfo,
+                    parameterDefaultValues,
+                    actionDescriptor.MethodExecutor,
+                    asyncExecutor,
+                    actionDescriptor.MethodAwaitableInfo?.ResultType);
 
             var controllerFactory = _controllerFactoryProvider.CreateControllerFactory(actionDescriptor);
             var controllerReleaser = _controllerFactoryProvider.CreateAsyncControllerReleaser(actionDescriptor);

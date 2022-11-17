@@ -83,6 +83,16 @@ public class ActionModel : ICommonModel, IFilterModel, IApiExplorerModel
     public MethodInfo ActionMethod { get; }
 
     /// <summary>
+    /// 
+    /// </summary>
+    public Func<object, object?[]?, object?>? ActionMethodInvoker { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public ActionAwaitableInfo? ActionMethodAwaitableInfo { get; set; }
+
+    /// <summary>
     /// Gets the action name.
     /// </summary>
     public string ActionName { get; set; } = default!;
@@ -162,7 +172,7 @@ public class ActionModel : ICommonModel, IFilterModel, IApiExplorerModel
 
     MemberInfo ICommonModel.MemberInfo => ActionMethod;
 
-    string ICommonModel.Name => ActionName;
+    string ICommonModel.Name => ActionName;    
 
     /// <summary>
     /// Gets the <see cref="SelectorModel"/> instances.
@@ -184,6 +194,32 @@ public class ActionModel : ICommonModel, IFilterModel, IApiExplorerModel
             var controllerType = TypeNameHelper.GetTypeDisplayName(Controller.ControllerType);
             var controllerAssembly = Controller?.ControllerType.Assembly.GetName().Name;
             return $"{controllerType}.{ActionMethod.Name} ({controllerAssembly})";
+        }
+    }
+
+    public readonly struct ActionAwaitableInfo
+    {
+        public Func<object, bool> AwaiterIsCompletedProperty { get; }
+        public Func<object, object> AwaiterGetResultMethod { get; }
+        public Action<object, Action> AwaiterOnCompletedMethod { get; }
+        public Action<object, Action>? AwaiterUnsafeOnCompletedMethod { get; }
+        public Func<object, object> GetAwaiterMethod { get; }
+        public Type ResultType { get; }
+
+        public ActionAwaitableInfo(
+            Type resultType,
+            Func<object, object> getAwaiterMethod,
+            Func<object, bool> isCompletedMethod,
+            Func<object, object> getResultMethod,
+            Action<object, Action> onCompletedMethod,
+            Action<object, Action>? unsafeOnCompletedMethod)
+        {
+            AwaiterIsCompletedProperty = isCompletedMethod;
+            AwaiterGetResultMethod = getResultMethod;
+            AwaiterOnCompletedMethod = onCompletedMethod;
+            AwaiterUnsafeOnCompletedMethod = unsafeOnCompletedMethod;
+            ResultType = resultType;
+            GetAwaiterMethod = getAwaiterMethod;
         }
     }
 }

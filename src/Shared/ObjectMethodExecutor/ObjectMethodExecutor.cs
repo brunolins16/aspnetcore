@@ -23,11 +23,14 @@ internal sealed class ObjectMethodExecutor
             typeof(Func<object, bool>),     // isCompletedMethod
             typeof(Func<object, object>),   // getResultMethod
             typeof(Action<object, Action>), // onCompletedMethod
-            typeof(Action<object, Action>)  // unsafeOnCompletedMethod
+            typeof(Action<object, Action>), // unsafeOnCompletedMethod
     })!;
 
     [RequiresUnreferencedCode("This method performs reflection on arbitrary types.")]
-    private ObjectMethodExecutor(MethodInfo methodInfo, TypeInfo targetTypeInfo, object?[]? parameterDefaultValues)
+    private ObjectMethodExecutor(
+        MethodInfo methodInfo,
+        TypeInfo targetTypeInfo,
+        object?[]? parameterDefaultValues)
     {
         if (methodInfo == null)
         {
@@ -57,6 +60,40 @@ internal sealed class ObjectMethodExecutor
         _parameterDefaultValues = parameterDefaultValues;
     }
 
+    private ObjectMethodExecutor(
+        MethodInfo methodInfo,
+        TypeInfo targetTypeInfo,
+        object?[]? parameterDefaultValues,
+        Func<object, object?[]?, object?> methodInvoker,
+        Func<object, object?[]?, ObjectMethodExecutorAwaitable>? asyncMethodInvoker = null,
+        Type? asyncResultType = null)
+    {
+        if (methodInfo == null)
+        {
+            throw new ArgumentNullException(nameof(methodInfo));
+        }
+
+        MethodInfo = methodInfo;
+        MethodParameters = methodInfo.GetParameters();
+        TargetTypeInfo = targetTypeInfo;
+        MethodReturnType = methodInfo.ReturnType;
+
+        //// Upstream code may prefer to use the sync-executor even for async methods, because if it knows
+        //// that the result is a specific Task<T> where T is known, then it can directly cast to that type
+        //// and await it without the extra heap allocations involved in the _executorAsync code path.
+        _executor = WrapInvokerMethod(methodInvoker);
+
+        //if (IsMethodAsync)
+        if (asyncMethodInvoker != null)
+        {
+            IsMethodAsync = true;
+            AsyncResultType = asyncResultType!;
+            _executorAsync = WrapInvokerAsyncMethod(asyncMethodInvoker);
+        }
+
+        _parameterDefaultValues = parameterDefaultValues;
+    }
+
     private delegate ObjectMethodExecutorAwaitable MethodExecutorAsync(object target, object?[]? parameters);
 
     private delegate object? MethodExecutor(object target, object?[]? parameters);
@@ -77,13 +114,18 @@ internal sealed class ObjectMethodExecutor
     public bool IsMethodAsync { get; }
 
     [RequiresUnreferencedCode("This method performs reflection on arbitrary types.")]
-    public static ObjectMethodExecutor Create(MethodInfo methodInfo, TypeInfo targetTypeInfo)
+    public static ObjectMethodExecutor Create(
+        MethodInfo methodInfo,
+        TypeInfo targetTypeInfo)
     {
         return new ObjectMethodExecutor(methodInfo, targetTypeInfo, null);
     }
 
     [RequiresUnreferencedCode("This method performs reflection on arbitrary types.")]
-    public static ObjectMethodExecutor Create(MethodInfo methodInfo, TypeInfo targetTypeInfo, object?[] parameterDefaultValues)
+    public static ObjectMethodExecutor Create(
+        MethodInfo methodInfo,
+        TypeInfo targetTypeInfo,
+        object?[] parameterDefaultValues)
     {
         if (parameterDefaultValues == null)
         {
@@ -91,6 +133,36 @@ internal sealed class ObjectMethodExecutor
         }
 
         return new ObjectMethodExecutor(methodInfo, targetTypeInfo, parameterDefaultValues);
+    }
+
+    public static ObjectMethodExecutor Create(
+        MethodInfo methodInfo,
+        TypeInfo targetTypeInfo,
+        object?[] parameterDefaultValues,
+        Func<object, object?[]?, object?> methodInvoker)
+    {
+        if (parameterDefaultValues == null)
+        {
+            throw new ArgumentNullException(nameof(parameterDefaultValues));
+        }
+
+        return new ObjectMethodExecutor(methodInfo, targetTypeInfo, parameterDefaultValues, methodInvoker);
+    }
+
+    public static ObjectMethodExecutor Create(
+        MethodInfo methodInfo,
+        TypeInfo targetTypeInfo,
+        object?[] parameterDefaultValues,
+        Func<object, object?[]?, object?> methodInvoker,
+        Func<object, object?[]?, ObjectMethodExecutorAwaitable>? asyncMethodInvoker,
+        Type? asyncResultType)
+    {
+        if (parameterDefaultValues == null)
+        {
+            throw new ArgumentNullException(nameof(parameterDefaultValues));
+        }
+
+        return new ObjectMethodExecutor(methodInfo, targetTypeInfo, parameterDefaultValues, methodInvoker, asyncMethodInvoker, asyncResultType);
     }
 
     /// <summary>
@@ -201,6 +273,22 @@ internal sealed class ObjectMethodExecutor
         {
             executor(target, parameters);
             return null;
+        };
+    }
+
+    private static MethodExecutor WrapInvokerMethod(Func<object, object?[]?, object?> invoker)
+    {
+        return delegate (object target, object?[]? parameters)
+        {
+            return invoker(target, parameters);
+        };
+    }
+
+    private static MethodExecutorAsync WrapInvokerAsyncMethod(Func<object, object?[]?, ObjectMethodExecutorAwaitable> asyncInvoker)
+    {
+        return delegate (object target, object?[]? parameters)
+        {
+            return asyncInvoker(target, parameters)!;
         };
     }
 
