@@ -25,7 +25,9 @@ public interface ISourceGenContext
     /// <param name="controllerType"></param>
     /// <param name="controllerInfo"></param>
     /// <returns></returns>
-    bool TryGetControllerInfo(Type controllerType, [NotNullWhen(true)] out ControllerInfo? controllerInfo);
+    bool TryGetControllerInfo(
+        Type controllerType,
+        [NotNullWhen(true)] out ControllerInfo? controllerInfo);
 
     /// <summary>
     /// 
