@@ -2,16 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Internal;
-using static Microsoft.AspNetCore.Mvc.ApplicationModels.ActionModel;
-using static Microsoft.Extensions.Internal.ObjectMethodExecutor;
 
 namespace Microsoft.AspNetCore.Mvc.Controllers;
 
@@ -39,7 +35,7 @@ public class ControllerActionDescriptor : ActionDescriptor
     // Cache entry so we can avoid an external cache
     internal Func<object, object?[]?, object?>? MethodExecutor { get; set; }
 
-    public ActionAwaitableInfo? MethodAwaitableInfo { get; set; }
+    internal ControllerActionAwaitableInfo? MethodAwaitableInfo { get; set; }
 
     /// <summary>
     /// The <see cref="TypeInfo"/> of the controller..

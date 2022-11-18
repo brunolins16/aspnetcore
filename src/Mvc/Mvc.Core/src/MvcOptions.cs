@@ -175,6 +175,11 @@ public class MvcOptions : IEnumerable<ICompatibilitySwitch>
     public DefaultModelBindingMessageProvider ModelBindingMessageProvider { get; }
 
     /// <summary>
+    /// 
+    /// </summary>
+    public ISourceGenContext? SourceGenContext { get; internal set; }
+
+    /// <summary>
     /// Gets a list of <see cref="IMetadataDetailsProvider"/> instances that will be used to
     /// create <see cref="ModelMetadata"/> instances.
     /// </summary>

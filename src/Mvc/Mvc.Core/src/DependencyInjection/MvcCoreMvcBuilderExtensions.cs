@@ -4,10 +4,12 @@
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -213,6 +215,40 @@ public static class MvcCoreMvcBuilderExtensions
         }
 
         builder.Services.Configure(setupAction);
+
+        return builder;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public static IMvcBuilder AddMvcContext(
+        this IMvcBuilder builder,
+        ISourceGenContext? context = null)
+    {
+        if (context != null)
+        {
+            // TODO: Verify
+            _ = builder.Services.Configure<MvcOptions>(options => options.SourceGenContext = context);
+
+            builder = builder.ConfigureApplicationPartManager((appPartManager) =>
+            {
+                for (var i = appPartManager.ApplicationParts.Count - 1; i >= 0; i--)
+                {
+                    if (appPartManager.ApplicationParts[i] is SourceGenApplicationPart)
+                    {
+                        appPartManager.ApplicationParts.RemoveAt(i);
+                    }
+                }
+
+                appPartManager.ApplicationParts.Add(new SourceGenApplicationPart(context));
+            });
+
+            _ = builder.Services.AddSingleton(context);
+        }
 
         return builder;
     }

@@ -1,8 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Options;
@@ -15,13 +15,16 @@ internal class DefaultApplicationModelProvider : IApplicationModelProvider
 {
     private readonly MvcOptions _mvcOptions;
     private readonly IModelMetadataProvider _modelMetadataProvider;
+    private readonly ISourceGenContext? _sourceGenContext;
 
     public DefaultApplicationModelProvider(
         IOptions<MvcOptions> mvcOptionsAccessor,
-        IModelMetadataProvider modelMetadataProvider)
+        IModelMetadataProvider modelMetadataProvider,
+        ISourceGenContext? sourceGenContext = null)
     {
         _mvcOptions = mvcOptionsAccessor.Value;
         _modelMetadataProvider = modelMetadataProvider;
+        _sourceGenContext = sourceGenContext;
     }
 
     /// <inheritdoc />
@@ -42,25 +45,36 @@ internal class DefaultApplicationModelProvider : IApplicationModelProvider
 
         foreach (var controllerType in context.ControllerTypes)
         {
-            if (context.Result.Controllers.Any(c => c.ControllerType.IsAssignableFrom(controllerType)))
-            {
-                continue;
-            }
-
-            var properties = PropertyHelper.GetProperties(controllerType.AsType());
-
-            // Coying only property info
-            var propertiesInfo = new PropertyInfo[properties.Length];
-            for (var i = 0; i < properties.Length; i++)
-            {
-                propertiesInfo[i] = properties[i].Property;
-            }
-
             var controllerModelBuilder = new ControllerModelBuilder(_modelMetadataProvider, _mvcOptions.SuppressAsyncSuffixInActionNames)
                 .WithControllerType(controllerType)
-                .WithApplication(context.Result)
-                .WithActions(controllerType.AsType().GetMethods())
-                .WithProperties(propertiesInfo);
+                .WithApplication(context.Result);
+
+            if (_sourceGenContext?.TryGetControllerInfo(controllerType, out var controllerInfo) == true)
+            {
+                controllerModelBuilder = controllerModelBuilder.WithProperties(controllerInfo.Properties);
+                for (var i = 0; i < controllerInfo.Actions.Length; i++)
+                {
+                    controllerModelBuilder = controllerModelBuilder.WithAction(
+                        controllerInfo.Actions[i].Method,
+                        controllerInfo.Actions[i].MethodInvoker,
+                        controllerInfo.Actions[i].MethodAwaitableInfo);
+                }
+            }
+            else
+            {
+                var properties = PropertyHelper.GetProperties(controllerType.AsType());
+
+                // Coying only property info
+                var propertiesInfo = new PropertyInfo[properties.Length];
+                for (var i = 0; i < properties.Length; i++)
+                {
+                    propertiesInfo[i] = properties[i].Property;
+                }
+
+                controllerModelBuilder = controllerModelBuilder
+                    .WithActions(controllerType.AsType().GetMethods())
+                    .WithProperties(propertiesInfo);
+            }
 
             context.Result.Controllers.Add(controllerModelBuilder.Build());
         }

@@ -7,22 +7,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
-using static Microsoft.AspNetCore.Mvc.ApplicationModels.ActionModel;
 
 /// <summary>
 /// 
 /// </summary>
-public sealed class ControllerModelBuilder
+internal sealed class ControllerModelBuilder
 {
     private TypeInfo? _controllerType;
     private List<PropertyInfo>? _properties;
-    private List<(MethodInfo, Func<object, object?[]?, object?>?, ActionAwaitableInfo?)>? _actions;
+    private List<(MethodInfo, Func<object, object?[]?, object?>?, ControllerActionAwaitableInfo?)>? _actions;
     private ApplicationModel? _applicationModel;
 
     private readonly IModelMetadataProvider _modelMetadataProvider;
@@ -147,9 +147,9 @@ public sealed class ControllerModelBuilder
     public ControllerModelBuilder WithAction(
         MethodInfo actionMethod,
         Func<object, object?[]?, object?>? methodInvoker = null,
-        ActionAwaitableInfo? actionAwaitableInfo = null)
+        ControllerActionAwaitableInfo? actionAwaitableInfo = null)
     {
-        _actions ??= new List<(MethodInfo, Func<object, object?[]?, object?>?, ActionAwaitableInfo?)>();
+        _actions ??= new List<(MethodInfo, Func<object, object?[]?, object?>?, ControllerActionAwaitableInfo?)>();
         _actions.Add((actionMethod, methodInvoker, actionAwaitableInfo));
 
         return this;

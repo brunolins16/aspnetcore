@@ -90,7 +90,7 @@ public class ActionModel : ICommonModel, IFilterModel, IApiExplorerModel
     /// <summary>
     /// 
     /// </summary>
-    public ActionAwaitableInfo? ActionMethodAwaitableInfo { get; set; }
+    public ControllerActionAwaitableInfo? ActionMethodAwaitableInfo { get; set; }
 
     /// <summary>
     /// Gets the action name.
@@ -194,32 +194,6 @@ public class ActionModel : ICommonModel, IFilterModel, IApiExplorerModel
             var controllerType = TypeNameHelper.GetTypeDisplayName(Controller.ControllerType);
             var controllerAssembly = Controller?.ControllerType.Assembly.GetName().Name;
             return $"{controllerType}.{ActionMethod.Name} ({controllerAssembly})";
-        }
-    }
-
-    public readonly struct ActionAwaitableInfo
-    {
-        public Func<object, bool> AwaiterIsCompletedProperty { get; }
-        public Func<object, object> AwaiterGetResultMethod { get; }
-        public Action<object, Action> AwaiterOnCompletedMethod { get; }
-        public Action<object, Action>? AwaiterUnsafeOnCompletedMethod { get; }
-        public Func<object, object> GetAwaiterMethod { get; }
-        public Type ResultType { get; }
-
-        public ActionAwaitableInfo(
-            Type resultType,
-            Func<object, object> getAwaiterMethod,
-            Func<object, bool> isCompletedMethod,
-            Func<object, object> getResultMethod,
-            Action<object, Action> onCompletedMethod,
-            Action<object, Action>? unsafeOnCompletedMethod)
-        {
-            AwaiterIsCompletedProperty = isCompletedMethod;
-            AwaiterGetResultMethod = getResultMethod;
-            AwaiterOnCompletedMethod = onCompletedMethod;
-            AwaiterUnsafeOnCompletedMethod = unsafeOnCompletedMethod;
-            ResultType = resultType;
-            GetAwaiterMethod = getAwaiterMethod;
         }
     }
 }

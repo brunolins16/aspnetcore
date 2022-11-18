@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Options;
 
@@ -20,13 +21,14 @@ public class DefaultModelMetadataProvider : ModelMetadataProvider
     private readonly ConcurrentDictionary<ModelMetadataIdentity, ModelMetadataCacheEntry> _modelMetadataCache = new();
     private readonly Func<ModelMetadataIdentity, ModelMetadataCacheEntry> _cacheEntryFactory;
     private readonly ModelMetadataCacheEntry _metadataCacheEntryForObjectType;
+    private readonly ISourceGenContext? _sourceGenContext;
 
     /// <summary>
     /// Creates a new <see cref="DefaultModelMetadataProvider"/>.
     /// </summary>
     /// <param name="detailsProvider">The <see cref="ICompositeMetadataDetailsProvider"/>.</param>
     public DefaultModelMetadataProvider(ICompositeMetadataDetailsProvider detailsProvider)
-        : this(detailsProvider, new DefaultModelBindingMessageProvider())
+        : this(detailsProvider, new DefaultModelBindingMessageProvider(), null)
     {
     }
 
@@ -38,13 +40,14 @@ public class DefaultModelMetadataProvider : ModelMetadataProvider
     public DefaultModelMetadataProvider(
         ICompositeMetadataDetailsProvider detailsProvider,
         IOptions<MvcOptions> optionsAccessor)
-        : this(detailsProvider, GetMessageProvider(optionsAccessor))
+        : this(detailsProvider, GetMessageProvider(optionsAccessor), GetSourceGenContext(optionsAccessor))
     {
     }
 
     private DefaultModelMetadataProvider(
         ICompositeMetadataDetailsProvider detailsProvider,
-        DefaultModelBindingMessageProvider modelBindingMessageProvider)
+        DefaultModelBindingMessageProvider modelBindingMessageProvider,
+        ISourceGenContext? sourceGenContext)
     {
         if (detailsProvider == null)
         {
@@ -54,6 +57,7 @@ public class DefaultModelMetadataProvider : ModelMetadataProvider
         DetailsProvider = detailsProvider;
         ModelBindingMessageProvider = modelBindingMessageProvider;
 
+        _sourceGenContext = sourceGenContext;
         _cacheEntryFactory = CreateCacheEntry;
         _metadataCacheEntryForObjectType = GetMetadataCacheEntryForObjectType();
     }
@@ -174,6 +178,16 @@ public class DefaultModelMetadataProvider : ModelMetadataProvider
         }
 
         return optionsAccessor.Value.ModelBindingMessageProvider;
+    }
+
+    private static ISourceGenContext? GetSourceGenContext(IOptions<MvcOptions> optionsAccessor)
+    {
+        if (optionsAccessor == null)
+        {
+            throw new ArgumentNullException(nameof(optionsAccessor));
+        }
+
+        return optionsAccessor.Value.SourceGenContext;
     }
 
     private ModelMetadataCacheEntry GetCacheEntry(Type modelType)
@@ -343,7 +357,9 @@ public class DefaultModelMetadataProvider : ModelMetadataProvider
     /// </remarks>
     protected virtual ModelMetadata CreateModelMetadata(DefaultMetadataDetails entry)
     {
-        return new DefaultModelMetadata(this, DetailsProvider, entry, ModelBindingMessageProvider);
+        return _sourceGenContext?.TryCreateModelMetadata(entry, this, DetailsProvider, ModelBindingMessageProvider, out var appModelMetadata) == true
+            ? appModelMetadata
+            : new DefaultModelMetadata(this, DetailsProvider, entry, ModelBindingMessageProvider);
     }
 
     /// <summary>
