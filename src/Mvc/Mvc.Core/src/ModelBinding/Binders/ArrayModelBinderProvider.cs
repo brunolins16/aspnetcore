@@ -24,6 +24,12 @@ public class ArrayModelBinderProvider : IModelBinderProvider
 
         if (context.Metadata.ModelType.IsArray)
         {
+            if (context.Metadata is ITypedModelMetadata typedModelMetadata &&
+                typedModelMetadata.CreateModelBinder(context) is IModelBinder typedModelBinder)
+            {
+                return typedModelBinder;
+            }
+
             var elementType = context.Metadata.ElementMetadata!.ModelType;
             var binderType = typeof(ArrayModelBinder<>).MakeGenericType(elementType);
             var elementBinder = context.CreateBinder(context.Metadata.ElementMetadata);

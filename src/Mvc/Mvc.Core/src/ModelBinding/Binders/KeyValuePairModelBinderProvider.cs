@@ -25,6 +25,12 @@ public class KeyValuePairModelBinderProvider : IModelBinderProvider
         if (modelType.IsGenericType &&
             modelType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
         {
+            if (context.Metadata is ITypedModelMetadata typedModelMetadata &&
+                typedModelMetadata.CreateModelBinder(context) is IModelBinder typedModelBinder)
+            {
+                return typedModelBinder;
+            }
+
             var typeArguments = modelType.GenericTypeArguments;
 
             var keyMetadata = context.MetadataProvider.GetMetadataForType(typeArguments[0]);

@@ -56,6 +56,12 @@ public class CollectionModelBinderProvider : IModelBinderProvider
 
     private static IModelBinder CreateInstance(ModelBinderProviderContext context, Type collectionType)
     {
+        if (context.Metadata is ITypedModelMetadata typedModelMetadata &&
+            typedModelMetadata.CreateModelBinder(context) is IModelBinder typedModelBinder)
+        {
+            return typedModelBinder;
+        }
+
         var binderType = typeof(CollectionModelBinder<>).MakeGenericType(collectionType.GenericTypeArguments);
         var elementType = collectionType.GenericTypeArguments[0];
         var elementBinder = context.CreateBinder(context.MetadataProvider.GetMetadataForType(elementType));

@@ -27,6 +27,13 @@ public class DictionaryModelBinderProvider : IModelBinderProvider
         var dictionaryType = ClosedGenericMatcher.ExtractGenericInterface(modelType, typeof(IDictionary<,>));
         if (dictionaryType != null)
         {
+
+            if (context.Metadata is ITypedModelMetadata typedModelMetadata &&
+                typedModelMetadata.CreateModelBinder(context) is IModelBinder typedModelBinder)
+            {
+                return typedModelBinder;
+            }
+
             var binderType = typeof(DictionaryModelBinder<,>).MakeGenericType(dictionaryType.GenericTypeArguments);
 
             var keyType = dictionaryType.GenericTypeArguments[0];

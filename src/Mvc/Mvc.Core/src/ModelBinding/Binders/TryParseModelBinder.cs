@@ -12,7 +12,7 @@ namespace Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 /// <summary>
 /// An <see cref="IModelBinder"/> for simple types.
 /// </summary>
-internal sealed class TryParseModelBinder : IModelBinder
+public sealed class TryParseModelBinder : IModelBinder
 {
     private static readonly MethodInfo AddModelErrorMethod = typeof(TryParseModelBinder).GetMethod(nameof(AddModelError), BindingFlags.NonPublic | BindingFlags.Static)!;
     private static readonly MethodInfo SuccessBindingResultMethod = typeof(ModelBindingResult).GetMethod(nameof(ModelBindingResult.Success), BindingFlags.Public | BindingFlags.Static)!;
@@ -26,7 +26,7 @@ internal sealed class TryParseModelBinder : IModelBinder
     private readonly ILogger _logger;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="SimpleTypeModelBinder"/>.
+    /// Initializes a new instance of <see cref="TryParseModelBinder"/>.
     /// </summary>
     /// <param name="modelType">The model type.</param>
     /// <param name="loggerFactory">The <see cref="ILoggerFactory"/>.</param>
@@ -43,6 +43,28 @@ internal sealed class TryParseModelBinder : IModelBinder
         }
 
         _tryParseOperation = CreateTryParseOperation(modelType);
+        _logger = loggerFactory.CreateLogger<TryParseModelBinder>();
+    }
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="TryParseModelBinder"/>.
+    /// </summary>
+    /// <param name="tryParseOperation">The operation responsible to invoke parse the input</param>
+    /// <param name="loggerFactory"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public TryParseModelBinder(Func<ValueProviderResult, ModelBindingContext, object?> tryParseOperation, ILoggerFactory loggerFactory)
+    {
+        if (tryParseOperation == null)
+        {
+            throw new ArgumentNullException(nameof(tryParseOperation));
+        }
+
+        if (loggerFactory == null)
+        {
+            throw new ArgumentNullException(nameof(loggerFactory));
+        }
+
+        _tryParseOperation = tryParseOperation;
         _logger = loggerFactory.CreateLogger<TryParseModelBinder>();
     }
 
