@@ -16,7 +16,8 @@ namespace Microsoft.AspNetCore.Http.Json;
 /// </summary>
 public class JsonOptions
 {
-    internal static readonly JsonSerializerOptions DefaultSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+    //TEMP: Public for troubleshooting
+    public static readonly JsonSerializerOptions DefaultSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
     {
         // Web defaults don't use the relex JSON escaping encoder.
         //
@@ -36,8 +37,9 @@ public class JsonOptions
     /// </summary>
     public JsonSerializerOptions SerializerOptions { get; } = new JsonSerializerOptions(DefaultSerializerOptions);
 
-    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
-        Justification = "The default type resolver will be set as DefaultJsonTypeInfoResolver (reflection-based) that has the same runtime behavior when TypeResolver is null.")]
+    //[UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
+    //    Justification = "The default type resolver will be set as DefaultJsonTypeInfoResolver (reflection-based) that has the same runtime behavior when TypeResolver is null.")]
+    [RequiresUnreferencedCode("Calls System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver.DefaultJsonTypeInfoResolver()")]
     private static IJsonTypeInfoResolver? CreateDefaultTypeResolver()
-        => new DefaultJsonTypeInfoResolver();
+        => JsonTrimmability.IsTrimmable ? null : new DefaultJsonTypeInfoResolver();
 }

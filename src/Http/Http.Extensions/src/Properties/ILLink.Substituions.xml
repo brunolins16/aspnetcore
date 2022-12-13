@@ -1,0 +1,7 @@
+<linker>
+  <assembly fullname="Microsoft.AspNetCore.Http.Extensions">
+    <type fullname="Microsoft.AspNetCore.Http.JsonTrimmability">
+      <method signature="System.Boolean get_IsTrimmable()" body="stub" value="true" feature="Microsoft.AspNetCore.EnsureJsonTrimmability" featurevalue="true" />
+    </type>
+  </assembly>
+</linker>
