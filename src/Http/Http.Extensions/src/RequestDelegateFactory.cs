@@ -2327,6 +2327,10 @@ public static partial class RequestDelegateFactory
 
     private static Task WriteJsonResponse<T>(HttpResponse response, T? value, JsonSerializerOptions? options, JsonTypeInfo? jsonTypeInfo)
     {
+        // Call WriteAsJsonAsync() with the runtime type to serialize the runtime type rather than the declared type
+        // and avoid source generators issues.
+        // https://github.com/dotnet/aspnetcore/issues/43894
+        // https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-polymorphism
         var runtimeType = value is null ? typeof(object) : value.GetType();
 
         if (jsonTypeInfo is not null && jsonTypeInfo.Type == runtimeType)
@@ -2336,31 +2340,39 @@ public static partial class RequestDelegateFactory
             return HttpResponseJsonExtensions.WriteAsJsonAsync(response, value!, (JsonTypeInfo<T>)jsonTypeInfo, default);
         }
 
-        // We cannot use JsonTypeInfo here yet, waiting for https://github.com/dotnet/runtime/issues/77051
-        // What should happens if options or type info is null?
-        // var runtimeTypeInfo = GetJsonTypeInfo(options, runtimeType);
-        // return HttpResponseJsonExtensions.WriteAsJsonAsync(response, value!, runtimeTypeInfo, default);
+        if (GetJsonTypeInfo(options, runtimeType) is { } runtimeTypeInfo)
+        {
+            // We cannot use JsonTypeInfo here yet, waiting for https://github.com/dotnet/runtime/issues/77051
+            return Task.CompletedTask;
+            //return HttpResponseJsonExtensions.WriteAsJsonAsync(response, value!, runtimeTypeInfo!, default);
+        }
 
-        // Call WriteAsJsonAsync() with the runtime type to serialize the runtime type rather than the declared type
-        // and avoid source generators issues.
-        // https://github.com/dotnet/aspnetcore/issues/43894
-        // https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-polymorphism
+        if (JsonTrimmability.IsTrimmable)
+        {
+            throw new NotSupportedException("TODO: TypeInfo required");
+        }
+
         return HttpResponseJsonExtensions.WriteAsJsonAsync(response, value, runtimeType, options, default);
     }
 
     private static JsonTypeInfo? GetJsonTypeInfo(JsonSerializerOptions? jsonSerializerOptions, Type type)
     {
-        if (jsonSerializerOptions?.TypeInfoResolver != null)
+        if (jsonSerializerOptions?.TypeInfoResolver is null)
         {
-            if (!jsonSerializerOptions.IsReadOnly)
+            if (JsonTrimmability.IsTrimmable)
             {
-                jsonSerializerOptions.MakeReadOnly();
+                throw new NotSupportedException("TODO: TypeInfoResolver configuration required");
             }
 
-            return jsonSerializerOptions.GetTypeInfo(type);
+            return null;
         }
 
-        return null;
+        if (!jsonSerializerOptions.IsReadOnly)
+        {
+            jsonSerializerOptions.MakeReadOnly();
+        }
+
+        return jsonSerializerOptions.GetTypeInfo(type);
     }
 
     private static NotSupportedException GetUnsupportedReturnTypeException(Type returnType)
