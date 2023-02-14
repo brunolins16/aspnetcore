@@ -1,58 +1,56 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.AspNetCore.Http;
-
 using System.Linq;
+
+namespace Microsoft.AspNetCore.Http;
 
 internal sealed class ProblemDetailsService : IProblemDetailsService
 {
     private readonly IProblemDetailsWriter[] _writers;
+    private readonly DefaultProblemDetailsWriter _defaultWriter;
 
     public ProblemDetailsService(
-        IEnumerable<IProblemDetailsWriter> writers)
+        IEnumerable<IProblemDetailsWriter> writers,
+        DefaultProblemDetailsWriter defaultProblemDetailsWriter)
     {
         _writers = writers.ToArray();
+        _defaultWriter = defaultProblemDetailsWriter;
     }
 
-    public ValueTask WriteAsync(ProblemDetailsContext context)
+    public async ValueTask WriteAsync(ProblemDetailsContext context)
+    {
+        if (!await TryWriteAsync(context))
+        {
+            throw new InvalidOperationException("Unable to find a registered `IProblemDetailsWriter` that can write to the given context.");
+        }
+    }
+
+    public async ValueTask<bool> TryWriteAsync(ProblemDetailsContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(context.ProblemDetails);
         ArgumentNullException.ThrowIfNull(context.HttpContext);
 
-        if (context.HttpContext.Response.HasStarted ||
-            context.HttpContext.Response.StatusCode < 400 ||
-            _writers.Length == 0)
-        {
-            return ValueTask.CompletedTask;
-        }
-
-        IProblemDetailsWriter? selectedWriter = null;
-
-        if (_writers.Length == 1)
-        {
-            selectedWriter = _writers[0];
-
-            return selectedWriter.CanWrite(context) ?
-                selectedWriter.WriteAsync(context) :
-                ValueTask.CompletedTask;
-        }
-
+        // Try to write using all registered writers
+        // sequentially and stop at the first one that
+        // `canWrite`.
         for (var i = 0; i < _writers.Length; i++)
         {
-            if (_writers[i].CanWrite(context))
+            var selectedWriter = _writers[i];
+            if (selectedWriter.CanWrite(context))
             {
-                selectedWriter = _writers[i];
-                break;
+                await selectedWriter.WriteAsync(context);
+                return true;
             }
         }
 
-        if (selectedWriter != null)
+        if (_defaultWriter.CanWrite(context))
         {
-            return selectedWriter.WriteAsync(context);
+            await _defaultWriter.WriteAsync(context);
+            return true;
         }
 
-        return ValueTask.CompletedTask;
+        return false;
     }
 }

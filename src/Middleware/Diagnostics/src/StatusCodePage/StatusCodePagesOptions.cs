@@ -24,18 +24,12 @@ public class StatusCodePagesOptions
         {
             var statusCode = context.HttpContext.Response.StatusCode;
 
-            if (context.HttpContext.RequestServices.GetService<IProblemDetailsService>() is { } problemDetailsService)
-            {
-                await problemDetailsService.WriteAsync(new ()
-                {
-                    HttpContext = context.HttpContext,
-                    ProblemDetails = { Status = statusCode }
-                });
-            }
+            var problemDetailsService = context.HttpContext.RequestServices.GetService<IProblemDetailsService>();
 
-            // TODO: Render with a pre-compiled html razor view.
-            if (!context.HttpContext.Response.HasStarted)
+            if (problemDetailsService == null ||
+                !await problemDetailsService.TryWriteAsync(new() { HttpContext = context.HttpContext, ProblemDetails = { Status = statusCode } }))
             {
+                // TODO: Render with a pre-compiled html razor view.
                 var body = BuildResponseBody(statusCode);
 
                 context.HttpContext.Response.ContentType = "text/plain";

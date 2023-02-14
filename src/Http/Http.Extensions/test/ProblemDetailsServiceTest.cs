@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.Extensions.Options;
+using Moq;
 
 namespace Microsoft.AspNetCore.Http.Extensions.Tests;
 
@@ -52,7 +54,7 @@ public class ProblemDetailsServiceTest
     }
 
     [Fact]
-    public async Task WriteAsync_Skip_WhenNoWriterCanWrite()
+    public async Task WriteAsync_Throw_WhenNoWriterCanWrite()
     {
         // Arrange
         var service = CreateService(
@@ -64,10 +66,7 @@ public class ProblemDetailsServiceTest
         };
 
         // Act
-        await service.WriteAsync(new() { HttpContext = context });
-
-        // Assert
-        Assert.Equal(string.Empty, Encoding.UTF8.GetString(stream.ToArray()));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.WriteAsync(new() { HttpContext = context }).AsTask());
     }
 
     [Theory]
@@ -98,8 +97,11 @@ public class ProblemDetailsServiceTest
     private static ProblemDetailsService CreateService(
         IEnumerable<IProblemDetailsWriter> writers = null)
     {
+        Mock<DefaultProblemDetailsWriter> writer = new Mock<DefaultProblemDetailsWriter>();
+        writer.Setup(writer => writer.CanWrite(It.IsAny<ProblemDetailsContext>())).Returns(false);
+
         writers ??= Array.Empty<IProblemDetailsWriter>();
-        return new ProblemDetailsService(writers);
+        return new ProblemDetailsService(writers, writer.Object);
     }
 
     private class SampleMetadata

@@ -39,7 +39,7 @@ public static class ProblemDetailsServiceCollectionExtensions
 
         // Adding default services;
         services.TryAddSingleton<IProblemDetailsService, ProblemDetailsService>();
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IProblemDetailsWriter, DefaultProblemDetailsWriter>());
+        services.TryAddSingleton<DefaultProblemDetailsWriter>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<JsonOptions>, ProblemDetailsJsonOptionsSetup>());
 
         if (configure != null)
