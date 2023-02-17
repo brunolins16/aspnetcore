@@ -297,6 +297,10 @@ app.MapGet("/hello", () => "Hello world!")
 object GetTodo() => new Todo() { Name = "Test Item"};
 app.MapGet("/", GetTodo);
 """)]
+    [InlineData("""
+Todo GetTodo() => new Todo() { Name = "Test Item"};
+app.MapGet("/", GetTodo);
+""")]
     [InlineData(@"app.MapGet(""/"", () => TypedResults.Ok(new Todo() { Name = ""Test Item""}));")]
     public async Task MapAction_NoParam_ComplexReturn(string source)
     {

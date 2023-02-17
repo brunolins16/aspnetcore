@@ -122,7 +122,14 @@ internal static class StaticRouteHandlerModelEmitter
         }
         else if (!endpoint.Response.IsVoid)
         {
-            return $"{returnOrAwait} httpContext.Response.WriteAsJsonAsync(result);";
+            if (endpoint.Response.ResponseType.IsSealed || endpoint.Response.ResponseType.IsValueType)
+            {
+                return $"{returnOrAwait} httpContext.Response.WriteAsJsonAsync(result);";
+            }
+            else
+            {
+                return $"{returnOrAwait} GeneratedRouteBuilderExtensionsCore.WriteToResponseAsync(result, httpContext);";
+            }
         }
         else if (!endpoint.Response.IsAwaitable && endpoint.Response.IsVoid)
         {
