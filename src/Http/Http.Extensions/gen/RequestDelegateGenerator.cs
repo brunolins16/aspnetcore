@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using Microsoft.AspNetCore.Http.Generators.StaticRouteHandlerModel;
+using Microsoft.AspNetCore.Http.Generators.StaticRouteHandlerModel.Emitters;
 
 namespace Microsoft.AspNetCore.Http.Generators;
 
@@ -71,7 +72,8 @@ public sealed class RequestDelegateGenerator : IIncrementalGenerator
                 {
                     var handler = ({{endpoint.EmitHandlerDelegateCast()}})del;
                     EndpointFilterDelegate? filteredInvocation = null;
-
+                    var serviceProvider = options?.ServiceProvider ?? options?.EndpointBuilder?.ApplicationServices;
+                    {{endpoint.EmitJsonPreparation()}}
                     if (options?.EndpointBuilder?.FilterFactories.Count > 0)
                     {
                         filteredInvocation = GeneratedRouteBuilderExtensionsCore.BuildFilterDelegate(ic =>

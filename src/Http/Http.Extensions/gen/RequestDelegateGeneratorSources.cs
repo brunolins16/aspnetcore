@@ -50,6 +50,7 @@ namespace Microsoft.AspNetCore.Http.Generated
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Reflection;
+    using System.Text.Json;
     using System.Text.Json.Serialization.Metadata;
     using System.Threading.Tasks;
     using System.IO;
@@ -105,19 +106,11 @@ namespace Microsoft.AspNetCore.Http.Generated
             }
         }
 
-        private static bool HasKnownPolymorphism(JsonTypeInfo jsonTypeInfo)
-            => jsonTypeInfo.Type.IsSealed || jsonTypeInfo.Type.IsValueType || jsonTypeInfo.PolymorphismOptions is not null;
-
         private static bool IsValid(JsonTypeInfo jsonTypeInfo, [NotNullWhen(false)] Type? runtimeType)
-            => runtimeType is null || jsonTypeInfo.Type == runtimeType || HasKnownPolymorphism(jsonTypeInfo);
+            => runtimeType is null || jsonTypeInfo.Type == runtimeType || jsonTypeInfo.PolymorphismOptions is not null;
 
-        private static Task WriteToResponseAsync<T>(T? value, HttpContext httpContext)
+        private static Task WriteToResponseAsync<T>(T? value, HttpContext httpContext, JsonTypeInfo<T> jsonTypeInfo, JsonSerializerOptions options)
         {
-            // TODO: Maybe we could avoid resolving it at runtime as we did in RDF,
-            // also, probably we need JsonOptions.DefaultSerializationOptions
-            var options = httpContext.RequestServices.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
-
-            var jsonTypeInfo = (JsonTypeInfo<T>)options.GetTypeInfo(typeof(T));
             var runtimeType = value?.GetType();
 
             if (IsValid(jsonTypeInfo, runtimeType))
@@ -125,7 +118,7 @@ namespace Microsoft.AspNetCore.Http.Generated
                 return httpContext.Response.WriteAsJsonAsync(value!, jsonTypeInfo);
             }
 
-            return httpContext.Response.WriteAsJsonAsync(value!,  options.GetTypeInfo(runtimeType));
+            return httpContext.Response.WriteAsJsonAsync(value!, options.GetTypeInfo(runtimeType));
         }
 
         private static async ValueTask<(bool, T?)> TryResolveBody<T>(HttpContext httpContext, bool allowEmpty)
