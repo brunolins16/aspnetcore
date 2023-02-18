@@ -106,14 +106,10 @@ namespace Microsoft.AspNetCore.Http.Generated
             }
         }
 
-        private static bool IsValid(JsonTypeInfo jsonTypeInfo, [NotNullWhen(false)] Type? runtimeType)
-            => runtimeType is null || jsonTypeInfo.Type == runtimeType || jsonTypeInfo.PolymorphismOptions is not null;
-
         private static Task WriteToResponseAsync<T>(T? value, HttpContext httpContext, JsonTypeInfo<T> jsonTypeInfo, JsonSerializerOptions options)
         {
             var runtimeType = value?.GetType();
-
-            if (IsValid(jsonTypeInfo, runtimeType))
+            if (runtimeType is null || jsonTypeInfo.Type == runtimeType || jsonTypeInfo.PolymorphismOptions is not null)
             {
                 return httpContext.Response.WriteAsJsonAsync(value!, jsonTypeInfo);
             }
