@@ -100,7 +100,6 @@ namespace Microsoft.AspNetCore.Http.Generated
                 {
                     var handler = (Func<global::Microsoft.AspNetCore.Http.HttpRequest, global::Microsoft.AspNetCore.Http.HttpResponse, global::System.String>)del;
                     EndpointFilterDelegate? filteredInvocation = null;
-                    var serviceProvider = options?.ServiceProvider ?? options?.EndpointBuilder?.ApplicationServices;
                     
                     if (options?.EndpointBuilder?.FilterFactories.Count > 0)
                     {

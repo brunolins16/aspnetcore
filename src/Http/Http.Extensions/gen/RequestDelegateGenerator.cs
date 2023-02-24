@@ -72,8 +72,7 @@ public sealed class RequestDelegateGenerator : IIncrementalGenerator
                 {
                     var handler = ({{endpoint.EmitHandlerDelegateCast()}})del;
                     EndpointFilterDelegate? filteredInvocation = null;
-                    var serviceProvider = options?.ServiceProvider ?? options?.EndpointBuilder?.ApplicationServices;
-                    {{endpoint.EmitJsonPreparation()}}
+{{endpoint.EmitJsonPreparation()}}
                     if (options?.EndpointBuilder?.FilterFactories.Count > 0)
                     {
                         filteredInvocation = GeneratedRouteBuilderExtensionsCore.BuildFilterDelegate(ic =>

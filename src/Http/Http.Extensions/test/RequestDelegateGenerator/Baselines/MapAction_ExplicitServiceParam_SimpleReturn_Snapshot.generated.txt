@@ -130,7 +130,6 @@ namespace Microsoft.AspNetCore.Http.Generated
                 {
                     var handler = (Func<global::Microsoft.AspNetCore.Http.Generators.Tests.TestService, global::System.String>)del;
                     EndpointFilterDelegate? filteredInvocation = null;
-                    var serviceProvider = options?.ServiceProvider ?? options?.EndpointBuilder?.ApplicationServices;
                     
                     if (options?.EndpointBuilder?.FilterFactories.Count > 0)
                     {
@@ -190,7 +189,6 @@ namespace Microsoft.AspNetCore.Http.Generated
                 {
                     var handler = (Func<global::System.Collections.Generic.IEnumerable<global::Microsoft.AspNetCore.Http.Generators.Tests.TestService>, global::System.String>)del;
                     EndpointFilterDelegate? filteredInvocation = null;
-                    var serviceProvider = options?.ServiceProvider ?? options?.EndpointBuilder?.ApplicationServices;
                     
                     if (options?.EndpointBuilder?.FilterFactories.Count > 0)
                     {
@@ -250,7 +248,6 @@ namespace Microsoft.AspNetCore.Http.Generated
                 {
                     var handler = (Func<global::Microsoft.AspNetCore.Http.Generators.Tests.TestService?, global::System.Collections.Generic.IEnumerable<global::Microsoft.AspNetCore.Http.Generators.Tests.TestService>, global::System.String>)del;
                     EndpointFilterDelegate? filteredInvocation = null;
-                    var serviceProvider = options?.ServiceProvider ?? options?.EndpointBuilder?.ApplicationServices;
                     
                     if (options?.EndpointBuilder?.FilterFactories.Count > 0)
                     {

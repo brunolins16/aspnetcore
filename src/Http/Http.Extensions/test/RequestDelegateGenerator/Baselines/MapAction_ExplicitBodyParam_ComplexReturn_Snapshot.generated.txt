@@ -100,7 +100,6 @@ namespace Microsoft.AspNetCore.Http.Generated
                 {
                     var handler = (Func<global::TestMapActions.Todo, global::Microsoft.AspNetCore.Http.HttpResults.Ok<global::TestMapActions.Todo>>)del;
                     EndpointFilterDelegate? filteredInvocation = null;
-                    var serviceProvider = options?.ServiceProvider ?? options?.EndpointBuilder?.ApplicationServices;
                     
                     if (options?.EndpointBuilder?.FilterFactories.Count > 0)
                     {
@@ -168,7 +167,6 @@ namespace Microsoft.AspNetCore.Http.Generated
                 {
                     var handler = (Func<global::TestMapActions.Todo?, global::Microsoft.AspNetCore.Http.HttpResults.Ok<global::TestMapActions.Todo>>)del;
                     EndpointFilterDelegate? filteredInvocation = null;
-                    var serviceProvider = options?.ServiceProvider ?? options?.EndpointBuilder?.ApplicationServices;
                     
                     if (options?.EndpointBuilder?.FilterFactories.Count > 0)
                     {

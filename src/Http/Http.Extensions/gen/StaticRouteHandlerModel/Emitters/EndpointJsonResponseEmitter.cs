@@ -16,7 +16,7 @@ internal static class EndpointJsonResponseEmitter
             var typeName = endpoint.Response.ResponseType.ToDisplayString(EmitterConstants.DisplayFormat);
 
             jsonPreparation.AppendLine($"""
-
+                    var serviceProvider = options?.ServiceProvider ?? options?.EndpointBuilder?.ApplicationServices;
                     var serializerOptions = serviceProvider?.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? new JsonOptions().SerializerOptions;
                     var jsonTypeInfo =  (JsonTypeInfo<{typeName}>)serializerOptions.GetTypeInfo(typeof({typeName}));
 """);

@@ -31,7 +31,7 @@ internal class EndpointResponse
         IsAwaitable = GetIsAwaitable(method);
         IsVoid = method.ReturnsVoid;
         IsIResult = GetIsIResult();
-        IsSerializable = !IsIResult && !IsVoid && ResponseType.SpecialType != SpecialType.System_String && ResponseType.SpecialType != SpecialType.System_Object;
+        IsSerializable = GetIsSerializable();
         ContentType = GetContentType(method);
     }
 
@@ -96,6 +96,14 @@ internal class EndpointResponse
             // void GetResult() || T GetResult()
             return methods.Any(m => m.Name == WellKnownMemberNames.GetResult && !m.Parameters.Any());
         }
+    }
+
+    private bool GetIsSerializable()
+    {
+        return !IsIResult &&
+            !IsVoid &&
+            ResponseType.SpecialType != SpecialType.System_String &&
+            ResponseType.SpecialType != SpecialType.System_Object;
     }
 
     private string? GetContentType(IMethodSymbol method)
